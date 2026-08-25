@@ -14,7 +14,7 @@ already looks right.
 - [x] 2. **Waitlist form shell** - the full static form matching `Homepage.png`:
   card, logo, heading, subcopy, hairline rule, every label and pressed well,
   parity pills, consent row, and the flush-inlay button. No validation, no submit.
-- [ ] 3. **Due date month picker** - the popover from section 06 with a year
+- [x] 3. **Due date month picker** - the popover from section 06 with a year
   stepper and 3x4 month grid, past months disabled, closes on pick, fully keyboard
   operable.
 - [ ] 4. **Validation and submit states** - one Zod schema shared by client and

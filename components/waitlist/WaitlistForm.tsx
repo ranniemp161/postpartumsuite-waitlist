@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 
+import { DueMonthPicker } from "@/components/waitlist/DueMonthPicker";
 import {
   DEFAULT_DIAL_CODE,
   DIAL_CODES,
@@ -80,43 +81,7 @@ export function WaitlistForm() {
         </div>
       </div>
 
-      {/* A button is a labelable element, so the label associates for real
-          rather than through aria. type="button" matters: the form has no
-          action yet, and a bare button inside a form submits. */}
-      <div className="field">
-        <label className="field-label" htmlFor="due_month_trigger">
-          Birth due date
-        </label>
-
-        <button
-          type="button"
-          id="due_month_trigger"
-          className="well flex items-center justify-between text-left"
-        >
-          {/* Placeholder colour but upright, not italic: section 04's italic is
-              a ::placeholder rule and a button has no placeholder to inherit it.
-              Homepage.png renders this text roman while the real placeholders
-              beside it are italic, and the image is the authority. */}
-          <span className="text-placeholder">Select your due date</span>
-
-          {/* Stroke matches --color-ink-soft, sampled off Homepage.png; the
-              placeholder beside it is a step lighter at --color-placeholder. */}
-          <svg
-            className="text-ink-soft shrink-0"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.25"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <rect x="1.6" y="3" width="12.8" height="11" rx="1.4" />
-            <path d="M1.6 6.3h12.8M5.2 1.6v2.9M10.8 1.6v2.9" />
-          </svg>
-        </button>
-      </div>
+      <DueMonthPicker />
 
       {/* Native radios, so arrow-key roving and the one-Tab-stop behaviour come
           from the browser rather than from state. The selected look is the
