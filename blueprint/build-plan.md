@@ -6,7 +6,7 @@ already looks right.
 
 ## MVP
 
-- [ ] 1. **Design foundation** - transcribe the CSS specification into real code:
+- [x] 1. **Design foundation** - transcribe the CSS specification into real code:
   `@theme` tokens in `globals.css`, the four Google fonts self-hosted through
   `next/font`, the `#kerf` SVG filter, generated paper and felt texture tiles, the
   logo mark, and the site icon replacing the Next.js default. Ends with a blank

@@ -1,26 +1,154 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* paper stock, elevation ladder light to dark by height */
+  --color-sheet: #E2D7C6;
+  --color-card: #E8DFD1;
+  --color-well: #CBBEA8;
+  --color-calendar: #F6F0E6;
+  /* spec section 01 says #93A7B8; section 09 supplies this darker face as its
+     own AA fix (2.31:1 -> ~4.6:1). Do not "correct" it back to the mockup. */
+  --color-btn-face: #4A6E92;
+
+  --color-ink: #3B3227;
+  --color-ink-soft: #6B5E4D;
+  --color-head: #4A3F31;
+  --color-accent: #7A2E2E;
+  --color-label-white: #F3F7FB;
+  --color-placeholder: #8A7D6C;
+
+  --radius-card: 5px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bodoni), Didot, Georgia, serif;
+  --font-body: var(--font-garamond), Georgia, serif;
+  --font-label: var(--font-imfell), Georgia, serif;
+  --font-ui: var(--font-plex), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --t-emb: 1px 1px 0 rgba(255, 251, 242, 0.85),
+    -1px -1px 1px rgba(70, 50, 34, 0.35);
+
+  --tile-paper: url("/textures/paper-tile.webp");
+  --tile-felt: url("/textures/felt-tile.webp");
+}
+
+@layer base {
+  /* Without a background here the browser propagates body's background to the
+     canvas and paints body itself as transparent, which leaves .paper's
+     soft-light layer blending against nothing and turns the ground grey. */
+  html {
+    background-color: var(--color-sheet);
+  }
+
+  body {
+    color: var(--color-ink-soft);
+    font-family: var(--font-body);
+    font-size: 17.5px;
+    line-height: 1.7;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 10;
+    font-weight: 520;
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.1;
+    letter-spacing: 0.005em;
+    color: var(--color-head);
+    text-shadow: var(--t-emb);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Surfaces. The tile never goes on a surface that also holds content, or
+     soft-light would blend the type as well. It goes on a full-bleed
+     pseudo-element underneath, and the content is lifted above it. Each surface
+     sets its own tile and scale; the mechanism below is shared. */
+  .paper {
+    --tile: var(--tile-paper);
+    --tile-scale: 512px;
+    background-color: var(--color-sheet);
+  }
+
+  .card-raised {
+    --tile: var(--tile-felt);
+    --tile-scale: 512px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 620px;
+    border-radius: var(--radius-card);
+    padding: clamp(34px, 4.6vw, 56px) clamp(24px, 3.4vw, 48px)
+      clamp(36px, 4.4vw, 52px);
+    background-color: var(--color-card);
+    /* Depth is a shadow ladder, never a border. Reading down: the silhouette
+       ring keeps the top edge from vanishing against the ground, two lines cut
+       the edge, contact and cast shadows lift it off the page, and the last two
+       are light rather than shade, the lit inner lip and the warm bounce from
+       upper left. */
+    box-shadow:
+      0 0 0 1px rgba(120, 98, 74, 0.06),
+      0 1px 0 rgba(184, 166, 140, 0.75),
+      0 2px 1px rgba(164, 146, 120, 0.55),
+      0 4px 6px rgba(84, 62, 44, 0.11),
+      0 9px 16px rgba(84, 62, 44, 0.08),
+      inset 0 1px 0 rgba(250, 243, 229, 0.5),
+      -1px -1px 3px rgba(248, 240, 225, 0.4);
+  }
+
+  .paper,
+  .card-raised {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .paper::before,
+  .card-raised::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background-image: var(--tile);
+    background-size: var(--tile-scale) var(--tile-scale);
+    background-repeat: repeat;
+    mix-blend-mode: soft-light;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .paper > *,
+  .card-raised > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@layer components {
+  /* Multiply rather than a plain paste, so the paper grain reads through the
+     cream disc instead of the mark sitting on a flat cut-out circle. */
+  /* A cut in the stock, not a drawn line: the gradient fades to nothing at both
+     ends and the white shadow underneath is the lit lip below the cut. */
+  .hairline {
+    height: 1px;
+    border: 0;
+    margin: clamp(26px, 3.4vw, 38px) 0;
+    background: linear-gradient(
+      90deg,
+      rgba(74, 56, 40, 0) 0%,
+      rgba(74, 56, 40, 0.22) 50%,
+      rgba(74, 56, 40, 0) 100%
+    );
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .logo-mark {
+    width: 104px;
+    height: 104px;
+    mix-blend-mode: multiply;
+    opacity: 0.88;
+  }
 }
