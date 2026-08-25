@@ -7,4 +7,4 @@ export type WaitlistFormState =
   | { status: "idle" }
   | { status: "invalid"; fieldErrors: WaitlistFieldErrors }
   | { status: "failed"; message: string }
-  | { status: "success"; firstName: string; email: string };
+  | { status: "success"; firstName: string };

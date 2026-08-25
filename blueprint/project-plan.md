@@ -40,8 +40,7 @@ where to open and whom to contact as places free up.
   year, birth parity, consent
 - Month and year due date picker in the design's popover shell
 - Client and server validation with inline, non-alarming error messages
-- Confirmation panel that replaces the form on success, echoing first name and
-  email
+- Confirmation panel that replaces the form on success, echoing first name
 - Each signup appended to a Google Sheet
 - A `/privacy` page for the policy the consent checkbox references
 
@@ -61,7 +60,7 @@ is no per-user authorisation model to design.
 | `email` | string | required, validated, lowercased |
 | `phone` | string | required, stored E.164, for example `+447700900123` |
 | `due_month` | string | required, `YYYY-MM`, past months rejected |
-| `parity` | integer | required, 1 to 5, where 5 means "fifth or more" |
+| `parity` | integer | required, 1 to 3, where 3 means "third or more" |
 | `consent` | boolean + timestamp | required, must be true to submit |
 | `created_at` | timestamp | server-generated, UTC |
 
@@ -148,6 +147,9 @@ material and a roughened seam. Restrained, tactile, unhurried.
 ### Key values
 
 - Ground `#E2D7C6`, card `#E8DFD1`, well `#CBBEA8`, calendar `#F6F0E6`
+- The built card sits on the ground colour with the paper tile, not on
+  `#E8DFD1` with felt: with the real scans in place, the two-colour split read
+  as a panel pasted onto the page rather than one embossed sheet
 - Ink `#3B3227`, soft ink `#6B5E4D`, heading `#4A3F31`, oxblood accent `#7A2E2E`
 - Card max-width 620px, radius 5px, all padding in `clamp()`
 - Form gap 22px, label gap 9px
@@ -196,7 +198,9 @@ explicit step; `/release vercel` prepares config but never deploys on its own.
 
 1. Phone stored E.164; dial-code select offers a short common-country list, UK
    first and default
-2. Parity stored 1 to 5, where 5 means "fifth or more"
+2. Parity stored 1 to 3, where 3 means "third or more". Revised down from 1 to
+   5 during the design revision: five pills would not sit on one row on a phone,
+   and the segment past a third baby is too small to plan an opening around.
 3. Submit swaps the card contents in place, with no page navigation
 4. The supplied logo serves as both the in-page mark and the site icon. At 16px
    the script strokes will soften; a simplified small-size variant is a later

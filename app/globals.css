@@ -31,6 +31,9 @@
   --t-emb:
     1px 1px 0 rgba(255, 251, 242, 0.85), -1px -1px 1px rgba(70, 50, 34, 0.35);
 
+  /* Both tiles are the real scans extracted from the inline data URIs in
+     UI-design/design-elements.html (.stage.paper and element 20's card), not
+     the feTurbulence stand-ins that shipped while the assets were missing. */
   --tile-paper: url("/textures/paper-tile.webp");
   --tile-felt: url("/textures/felt-tile.webp");
 }
@@ -75,7 +78,7 @@
   }
 
   .card-raised {
-    --tile: var(--tile-felt);
+    --tile: var(--tile-paper);
     --tile-scale: 512px;
     box-sizing: border-box;
     width: 100%;
@@ -83,7 +86,7 @@
     border-radius: var(--radius-card);
     padding: clamp(34px, 4.6vw, 56px) clamp(24px, 3.4vw, 48px)
       clamp(36px, 4.4vw, 52px);
-    background-color: var(--color-card);
+    background-color: var(--color-sheet);
     /* Depth is a shadow ladder, never a border. Reading down: the silhouette
        ring keeps the top edge from vanishing against the ground, two lines cut
        the edge, contact and cast shadows lift it off the page, and the last two
@@ -145,11 +148,70 @@
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
-  .logo-mark {
+  /* Section 19. Three copies of the same alpha mask, offset by a fraction of a
+     pixel and stacked: dark toward the upper left, light toward the lower
+     right, the solid ink on top. Only a sliver of each fringe shows past the
+     stroke, and that sliver is the whole depth cue. The section notes a filter
+     plus drop-shadow was tried first and abandoned, because the mask clips the
+     shadow after the fact in some browsers. */
+  .logo-deboss {
+    position: relative;
     width: 104px;
-    height: 104px;
-    mix-blend-mode: multiply;
-    opacity: 0.88;
+    /* 480x474 native, so height is not width */
+    aspect-ratio: 480 / 474;
+  }
+
+  .logo-deboss > span {
+    position: absolute;
+    inset: 0;
+    -webkit-mask-image: url("/logo-mask.png");
+    mask-image: url("/logo-mask.png");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+
+  .ld-shadow {
+    background: #050301;
+    transform: translate(-0.6px, -0.6px);
+    filter: blur(0.5px);
+    opacity: 0.85;
+    z-index: 1;
+  }
+
+  .ld-light {
+    background: #fbf3e3;
+    transform: translate(0.6px, 0.6px);
+    filter: blur(0.5px);
+    opacity: 0.75;
+    z-index: 2;
+  }
+
+  .ld-main {
+    background: #16110c;
+    z-index: 3;
+  }
+
+  /* Section 02's <em>, which is where the reddish italic display face is
+     specified. The tagline is the only place on the page that uses it. */
+  .tagline {
+    margin: 10px auto 0;
+    max-width: 30ch;
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 10;
+    font-weight: 520;
+    font-style: italic;
+    font-size: clamp(19px, 2.2vw, 25px);
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    text-align: center;
+    text-wrap: balance;
+    color: #6e2020;
+    text-shadow: var(--t-emb);
   }
 }
 
@@ -541,34 +603,49 @@
 @layer components {
   /* Sits where the form was, so it borrows the heading block's centring rather
      than the form's left-aligned rhythm. */
+  /* The thank you is the whole card now, not a block under a form, so it is
+     spaced as a small standalone notice: an ornament, a line of display type,
+     and one settled sentence. */
   .confirm-panel {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    gap: clamp(16px, 2.4vw, 22px);
+    padding: clamp(30px, 5vw, 46px) 0 clamp(10px, 2vw, 18px);
     text-align: center;
   }
 
+  /* Section 18's debossed separator, cut short. A full-width rule would read as
+     the divider that used to sit here; a 54px one reads as a mark. */
+  .confirm-panel::before {
+    content: "";
+    width: 54px;
+    height: 1px;
+    background: rgba(52, 38, 26, 0.32);
+    box-shadow: 0 1px 0 rgba(250, 243, 229, 0.55);
+  }
+
   .confirm-title {
+    margin: 0;
     font-family: var(--font-display);
     font-optical-sizing: none;
     font-variation-settings: "opsz" 10;
     font-weight: 520;
-    font-size: clamp(24px, 3.2vw, 30px);
-    line-height: 1.15;
+    font-size: clamp(27px, 3.6vw, 36px);
+    line-height: 1.12;
+    letter-spacing: -0.005em;
     color: var(--color-head);
     text-shadow: var(--t-emb);
+    /* A long first name must not force a two-line break mid-phrase. */
+    text-wrap: balance;
+    overflow-wrap: anywhere;
   }
 
   .confirm-panel p {
-    max-width: 42ch;
-    margin-inline: auto;
-  }
-
-  /* One step darker than the surrounding copy, which is all the emphasis the
-     echoed address needs. Breaking is allowed because a long address must not
-     push the card wider. */
-  .confirm-email {
-    color: var(--color-ink);
-    overflow-wrap: anywhere;
+    max-width: 34ch;
+    margin: 0 auto;
+    font-size: 18px;
+    line-height: 1.75;
+    text-wrap: balance;
   }
 }

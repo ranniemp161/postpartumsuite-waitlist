@@ -22,11 +22,7 @@ export async function joinWaitlist(
 
     await saveSignup(signup);
 
-    return {
-      status: "success",
-      firstName: signup.first_name,
-      email: signup.email,
-    };
+    return { status: "success", firstName: signup.first_name };
   } catch (error) {
     // The visitor gets FAILURE_MESSAGE; the detail stays in the server log.
     console.error("waitlist submit failed", error);

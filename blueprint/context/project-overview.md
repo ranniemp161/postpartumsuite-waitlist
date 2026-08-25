@@ -62,12 +62,12 @@ the schema** and later features depend on it.
 - `email` (string, required) - validated, stored lowercased
 - `phone` (string, required) - E.164, for example `+447700900123`
 - `due_month` (string, required) - `YYYY-MM`, past months rejected
-- `parity` (integer, required) - 1 to 5, where 5 means "fifth or more"
+- `parity` (integer, required) - 1 to 3, where 3 means "third or more"
 - `consent` (boolean, required) - must be true to submit
 - `consent_at` (ISO 8601 string) - when consent was given
 
 > **Locked shapes.** `due_month` is `YYYY-MM`, never a full date. `parity` is an
-> integer 1 to 5, never a label string. `phone` is always E.164. Features 3, 4,
+> integer 1 to 3, never a label string. `phone` is always E.164. Features 3, 4,
 > and 5 all depend on these.
 
 **Sensitivity.** Due month plus parity is pregnancy information, which is health
@@ -129,6 +129,8 @@ coplanar with the surface, distinguished only by material and a roughened seam.
 ### Key values
 
 - Ground `#E2D7C6`, card `#E8DFD1`, well `#CBBEA8`, calendar `#F6F0E6`
+- The card is built on the ground colour with the paper tile, not `#E8DFD1` with
+  felt. The real scans made the two-colour split read as a pasted-on panel
 - Ink `#3B3227`, soft `#6B5E4D`, heading `#4A3F31`, oxblood accent `#7A2E2E`
 - Card max-width 620px, radius 5px, all padding in `clamp()`
 - Form gap 22px, label gap 9px
@@ -136,14 +138,15 @@ coplanar with the surface, distinguished only by material and a roughened seam.
   `isolation:isolate`, `mix-blend-mode:soft-light`
 - Tile scale 512px page and card, 280px button and wells
 - Motion only on the button, 120ms ease on transform and box-shadow
-- Logo at 104px, `mix-blend-mode:multiply`, `opacity:0.88`
+- Logo at 104px, drawn as section 19's three-layer masked deboss rather than a
+  flat image, so the relief is real
 - **Light theme only.** No dark variant is specified; the scaffold's
   `prefers-color-scheme` override is removed.
 
 ### Routes
 
 - `/` - the waitlist page. Form, then confirmation panel replacing it in place on
-  success, echoing first name and email. No navigation on submit.
+  success, echoing first name. No navigation on submit.
 - `/privacy` - the privacy policy, same paper theme, linked from the consent
   checkbox.
 
@@ -179,10 +182,6 @@ Gaps and mismatches carried from the plans. Resolve in the plans, then re-run
 - **The mockup contradicts the approved button colour.** `Homepage.png` shows
   `#93A7B8`; the approved build uses `#4A6E92`. This is intentional. Do not
   "correct" the code back to the screenshot.
-- **Two texture assets were never delivered.** `paper-tile.webp` and
-  `felt-tile.webp` are referenced by the spec but absent. Feature 1 generates
-  substitutes with `feTurbulence`, so the surface will be close but not identical
-  to the original render.
 - **Signup records have no stable identifier.** Row position is the only identity,
   which makes a GDPR deletion request manual and error-prone. Decide whether to
   add an id before the list grows.

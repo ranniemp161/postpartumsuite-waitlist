@@ -2,12 +2,12 @@
 // writer read the same constants, so a code added here stays accepted end to end.
 
 // The integer is the record; the label is display only and never reaches the
-// sheet. 5 means "fifth or more".
+// sheet. 3 is the open end of the scale, "third or more", so a fourth or later
+// baby is also recorded as 3.
 export const PARITY_OPTIONS = [
   { value: 1, label: "First" },
   { value: 2, label: "Second" },
-  { value: 3, label: "Third" },
-  { value: 4, label: "Fourth or more" },
+  { value: 3, label: "Third or more" },
 ] as const;
 
 export const DIAL_CODES = [
@@ -18,5 +18,5 @@ export const DIAL_CODES = [
 export const DEFAULT_DIAL_CODE = "+44";
 
 // The recorded value, narrowed. Feature 4's schema and feature 5's sheet writer
-// both depend on this staying 1 to 5.
+// both depend on this staying 1 to 3.
 export type Parity = (typeof PARITY_OPTIONS)[number]["value"];

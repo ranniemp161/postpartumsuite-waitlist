@@ -19,7 +19,7 @@ already looks right.
   operable.
 - [x] 4. **Validation and submit states** - one Zod schema shared by client and
   server, inline errors, submitting and disabled states, and the confirmation
-  panel that replaces the form echoing first name and email.
+  panel that replaces the form echoing first name.
 - [x] 5. **Google Sheets persistence** - `saveSignup()` behind a single typed
   module, service-account append, env var wiring, and failure handling that never
   silently loses a signup.
