@@ -17,3 +17,7 @@ export const DIAL_CODES = [
 ] as const;
 
 export const DEFAULT_DIAL_CODE = "+44";
+
+// The recorded value, narrowed. Feature 4's schema and feature 5's sheet writer
+// both depend on this staying 1 to 5.
+export type Parity = (typeof PARITY_OPTIONS)[number]["value"];

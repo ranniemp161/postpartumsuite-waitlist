@@ -17,7 +17,7 @@ already looks right.
 - [x] 3. **Due date month picker** - the popover from section 06 with a year
   stepper and 3x4 month grid, past months disabled, closes on pick, fully keyboard
   operable.
-- [ ] 4. **Validation and submit states** - one Zod schema shared by client and
+- [x] 4. **Validation and submit states** - one Zod schema shared by client and
   server, inline errors, submitting and disabled states, and the confirmation
   panel that replaces the form echoing first name and email.
 - [ ] 5. **Google Sheets persistence** - `saveSignup()` behind a single typed

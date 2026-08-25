@@ -23,7 +23,7 @@ export default function Home() {
       <h1 className="mt-[20px] text-center">The Postpartum Suite</h1>
 
       <p className="mx-auto mt-[20px] max-w-[38ch] text-center">
-        Join the wait list and we will be in touch as places open in your area.
+        Join the wait list and we will be in touch.
       </p>
 
       <hr className="hairline" />

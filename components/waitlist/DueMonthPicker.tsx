@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { FieldError, invalidProps } from "@/components/waitlist/FieldError";
 import {
   MONTH_LABELS,
   dueMonthYearBounds,
@@ -9,6 +10,7 @@ import {
   isPastMonth,
   toDueMonth,
 } from "@/lib/due-month";
+import type { WaitlistFieldErrors } from "@/lib/waitlist-schema";
 
 type SelectedMonth = { year: number; monthIndex: number };
 
@@ -20,7 +22,13 @@ type Calendar = { today: Date; viewYear: number; activeIndex: number };
 
 const COLUMNS = 3;
 
-export function DueMonthPicker() {
+export function DueMonthPicker({
+  errors,
+  onPick,
+}: {
+  errors: WaitlistFieldErrors;
+  onPick: (dueMonth: string) => void;
+}) {
   const [calendar, setCalendar] = useState<Calendar | null>(null);
   const [selected, setSelected] = useState<SelectedMonth | null>(null);
 
@@ -71,6 +79,9 @@ export function DueMonthPicker() {
     if (!calendar) return;
     setSelected({ year: calendar.viewYear, monthIndex });
     close({ restoreFocus: true });
+    // The hidden input is React-controlled, so setting it fires no change event
+    // the form could hear. The new value goes out by hand instead.
+    onPick(toDueMonth(calendar.viewYear, monthIndex));
   }
 
   // Roving tabindex: the grid is one tab stop and the arrows move within it,
@@ -124,8 +135,8 @@ export function DueMonthPicker() {
         Birth due date
       </label>
 
-      {/* The value feature 4 validates and feature 5 writes to the sheet. Empty
-          until a month is picked; this feature never rejects that. */}
+      {/* The value the schema validates and feature 5 writes to the sheet.
+          Empty until a month is picked, which the schema rejects. */}
       <input
         type="hidden"
         name="due_month"
@@ -133,8 +144,8 @@ export function DueMonthPicker() {
       />
 
       {/* A button is a labelable element, so the label associates for real
-          rather than through aria. type="button" matters: the form has no
-          action yet, and a bare button inside a form submits. */}
+          rather than through aria. type="button" matters: a bare button inside
+          a form submits it. */}
       <button
         ref={triggerRef}
         type="button"
@@ -142,6 +153,7 @@ export function DueMonthPicker() {
         className="well flex items-center justify-between text-left"
         aria-haspopup="dialog"
         aria-expanded={calendar !== null}
+        {...invalidProps("due_month", errors)}
         onClick={() => (calendar ? close({ restoreFocus: false }) : open())}
       >
         {/* Placeholder colour but upright, not italic: section 04's italic is
@@ -171,6 +183,8 @@ export function DueMonthPicker() {
           <path d="M1.6 6.3h12.8M5.2 1.6v2.9M10.8 1.6v2.9" />
         </svg>
       </button>
+
+      <FieldError field="due_month" errors={errors} />
 
       {calendar && (
         <div
