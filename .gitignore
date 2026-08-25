@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# os / editor
+Thumbs.db
+Desktop.ini
+.idea/
+*.swp
