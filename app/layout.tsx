@@ -46,7 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bodoni.variable} ${garamond.variable} ${imFell.variable} ${plexSans.variable} antialiased`}
     >
-      <body className="paper flex min-h-screen items-start justify-center px-[clamp(14px,4vw,40px)] py-[clamp(28px,6vw,90px)]">
+      <body className="paper flex min-h-screen flex-col items-center px-[clamp(14px,4vw,40px)] py-[clamp(28px,6vw,90px)]">
         {/* kerf: roughens a seam so it stops following the vector outline.
             Consumed by the button's cut in feature 2 via filter:url(#kerf).
             Lives here because a filter needs to exist once per document, and

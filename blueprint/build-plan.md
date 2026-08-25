@@ -23,7 +23,7 @@ already looks right.
 - [x] 5. **Google Sheets persistence** - `saveSignup()` behind a single typed
   module, service-account append, env var wiring, and failure handling that never
   silently loses a signup.
-- [ ] 6. **Privacy policy page** - `/privacy` in the same paper theme, linked from
+- [x] 6. **Privacy policy page** - `/privacy` in the same paper theme, linked from
   the consent checkbox, with clearly marked placeholder text.
 - [ ] 7. **Responsive and accessibility pass** - narrow-screen behaviour, name row
   stacking, focus rings, labels and aria wiring, reduced motion, and a real
