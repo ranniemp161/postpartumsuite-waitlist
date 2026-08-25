@@ -1,11 +1,22 @@
 "use client";
 
-import { Fragment, useActionState, useRef, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  startTransition,
+  useActionState,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { joinWaitlist } from "@/actions/waitlist";
 import { ConfirmationPanel } from "@/components/waitlist/ConfirmationPanel";
 import { DueMonthPicker } from "@/components/waitlist/DueMonthPicker";
-import { FieldError, invalidProps } from "@/components/waitlist/FieldError";
+import {
+  describedByProps,
+  FieldError,
+  invalidProps,
+} from "@/components/waitlist/FieldError";
 import {
   DEFAULT_DIAL_CODE,
   DIAL_CODES,
@@ -63,6 +74,18 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
     if (isWaitlistField(name)) revalidate(name);
   }
 
+  // React owns the reset of any form it drives through the action prop, and it
+  // empties every uncontrolled field once the action answers. That is right for
+  // a form that succeeded and wrong for one that came back with errors: a
+  // visitor who missed the consent box would have to retype their name, email
+  // and number. Dispatching the same action by hand keeps the reset out of
+  // React's hands, so the DOM values stay exactly where the visitor left them.
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => submit(data));
+  }
+
   // In place, with no navigation: the visitor keeps the logo and heading above.
   // `intro` is the standing copy and its rules, which belong to the form rather
   // than to the thank you, so both leave together.
@@ -76,14 +99,15 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
 
       <form
         ref={formRef}
-        action={submit}
+        onSubmit={onSubmit}
         className="form-stack"
         onChange={onFieldEdit}
         onBlur={onFieldEdit}
       >
         {/* The mockup shows one NAME field; splitting it is an approved deviation
-            so the confirmation panel can echo a first name. Fixed two columns:
-            narrow-screen stacking is feature 7. */}
+            so the confirmation panel can echo a first name. One column under
+            640px, because two 122px wells would each hold about eight
+            characters. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
           {/* The label wraps nothing now: an error paragraph inside a <label>
               becomes part of the control's accessible name, so the message has to
@@ -183,7 +207,10 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
         {/* Native radios, so arrow-key roving and the one-Tab-stop behaviour come
             from the browser rather than from state. The selected look is the
             :checked sibling; nothing here is interactive JavaScript. */}
-        <fieldset className="parity-set" {...invalidProps("parity", errors)}>
+        <fieldset
+          className="parity-set"
+          {...describedByProps("parity", errors)}
+        >
           <legend className="field-label">Is this your first baby?</legend>
 
           <div className="parity-row">
@@ -195,6 +222,7 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
                   id={`parity_${value}`}
                   name="parity"
                   value={value}
+                  {...invalidProps("parity", errors)}
                 />
                 <label className="pill" htmlFor={`parity_${value}`}>
                   {label}

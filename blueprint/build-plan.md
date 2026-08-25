@@ -25,7 +25,7 @@ already looks right.
   silently loses a signup.
 - [x] 6. **Privacy policy page** - `/privacy` in the same paper theme, linked from
   the consent checkbox, with clearly marked placeholder text.
-- [ ] 7. **Responsive and accessibility pass** - narrow-screen behaviour, name row
+- [x] 7. **Responsive and accessibility pass** - narrow-screen behaviour, name row
   stacking, focus rings, labels and aria wiring, reduced motion, and a real
   small-screen check.
 - [ ] 8. **Deployment readiness** - Vercel config, London region, env vars,

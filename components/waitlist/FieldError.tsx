@@ -23,7 +23,21 @@ export function FieldError({
 
 // Colour is never the only signal: the message text is the signal, and these
 // two attributes are what tie it to the control for a screen reader.
-export function invalidProps(field: WaitlistField, errors: WaitlistFieldErrors) {
+export function invalidProps(
+  field: WaitlistField,
+  errors: WaitlistFieldErrors,
+) {
   if (!errors[field]) return {};
   return { "aria-invalid": true, "aria-describedby": errorId(field) } as const;
+}
+
+// For a <fieldset>, which maps to role="group". aria-invalid is not defined on
+// a group, so the description hangs on the set and the invalid state goes on
+// each radio inside it.
+export function describedByProps(
+  field: WaitlistField,
+  errors: WaitlistFieldErrors,
+) {
+  if (!errors[field]) return {};
+  return { "aria-describedby": errorId(field) } as const;
 }

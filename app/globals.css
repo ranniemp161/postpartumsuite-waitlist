@@ -6,8 +6,11 @@
   --color-card: #e8dfd1;
   --color-well: #cbbea8;
   --color-calendar: #f6f0e6;
-  /* spec section 01 says #93A7B8; section 09 supplies this darker face as its
-     own AA fix (2.31:1 -> ~4.6:1). Do not "correct" it back to the mockup. */
+  /* Section 01 and Homepage.png. Section 09 offers #4A6E92 as an AA fix, since
+     the label sits on this face at 2.31:1 rather than the 4.5:1 AA asks for.
+     Feature 7 weighed that and kept the mockup: the pale face is the design,
+     and the failure is accepted knowingly rather than left unnoticed. Do not
+     "fix" it without asking. */
   --color-btn-face: #93a7b8;
 
   --color-ink: #3b3227;
@@ -15,7 +18,12 @@
   --color-head: #4a3f31;
   --color-accent: #7a2e2e;
   --color-label-white: #f3f7fb;
-  --color-placeholder: #8a7d6c;
+  /* Was #8A7D6C, which sat at 2.19:1 on the well. Dropped to the palette's own
+     soft ink, 3.44:1, still two steps lighter than a typed value at 6.86:1. */
+  --color-placeholder: #6b5e4d;
+  /* The freed placeholder tone, now carrying the calendar's unavailable months
+     at 3.54:1 on the pale sheet instead of 2.09:1. */
+  --color-muted: #8a7d6c;
 
   --radius-card: 5px;
 }
@@ -30,6 +38,14 @@
 :root {
   --t-emb:
     1px 1px 0 rgba(255, 251, 242, 0.85), -1px -1px 1px rgba(70, 50, 34, 0.35);
+
+  /* One focus language for the whole page: the oxblood halo section 05 gives
+     the wells, reused by every other control instead of a UA outline. */
+  --ring: 0 0 0 2px rgba(122, 46, 46, 0.35);
+
+  /* Same stroke and weight as the picker's calendar glyph, so the two controls
+     in the form that open something are marked the same way. */
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none' stroke='%236b5e4d' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 1.4 5.5 5.6 9.8 1.4'/%3E%3C/svg%3E");
 
   /* Both tiles are the real scans extracted from the inline data URIs in
      UI-design/design-elements.html (.stage.paper and element 20's card), not
@@ -276,7 +292,7 @@
   .well:focus {
     box-shadow:
       inset 0 2px 5px rgba(74, 56, 40, 0.36),
-      0 0 0 2px rgba(122, 46, 46, 0.35);
+      var(--ring);
   }
 
   /* Stronger than the focus halo, because this one has to read while focus is
@@ -322,13 +338,32 @@
     gap: 10px;
   }
 
-  /* No chevron is drawn in its place. The spec and the mockup both show a bare
-     well, so the arrow's absence is deliberate; feature 7 decides whether the
-     affordance needs restoring. */
+  /* A grid item's automatic minimum is its content, and an input's content
+     minimum is the ~20 character box the UA gives it whatever width:100% says.
+     Without this the number field refuses to go under about 177px and the row
+     pushes the card wider than a 320px screen. */
+  .phone-row .well {
+    min-width: 0;
+  }
+
+  /* appearance:none takes the native arrow with it, and the mockup shows a bare
+     well in its place. A control that opens a menu has to look like one, so the
+     arrow comes back drawn in the calendar icon's ink rather than the UA's.
+     It rides as a second background layer over the felt: the felt keeps its
+     soft-light blend, the chevron is painted normally on top of it.
+     The 30px right padding fits inside the 112px the phone row already gives
+     this column, so nothing moves. */
   select.well {
-    padding: 15px 12px;
+    padding: 15px 30px 15px 12px;
     appearance: none;
     cursor: pointer;
+    background-image: var(--chevron), var(--tile-felt);
+    background-size: 11px auto, 280px 280px;
+    background-position:
+      right 11px center,
+      0 0;
+    background-repeat: no-repeat, repeat;
+    background-blend-mode: normal, soft-light;
   }
 }
 
@@ -371,15 +406,32 @@
 
   /* The shallow well fills in and lifts: the inset light becomes a top lip and
      the cast shadow puts the tab above the card instead of cut into it.
-     Contrast debt: #FFFFFF on #8AA6C2 is about 2.5:1, the same knowing AA
-     failure section 09 fixed for the button face. Section 09 does not cover the
-     pills, so this is the spec value; feature 7's pass decides. */
+     The fill is the spec's; the label is not. White on #8AA6C2 is 2.5:1, the
+     same failure section 09 fixed for the button, and section 09 does not cover
+     the pills. Ink keeps the mockup's fill exactly and reads at 4.97:1. */
   .parity-row input:checked + .pill {
     background: #8aa6c2;
-    color: #ffffff;
+    color: var(--color-ink);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.42),
       0 6px 14px -8px rgba(46, 68, 92, 0.6);
+  }
+
+  /* The radio itself is sr-only, so without these the arrow keys move a focus
+     nobody can see. Each restates its own resting ladder because box-shadow
+     does not cascade one layer at a time. */
+  .parity-row input:focus-visible + .pill {
+    box-shadow:
+      inset 0 2px 4px rgba(74, 56, 40, 0.28),
+      0 1px 0 rgba(255, 255, 255, 0.85),
+      var(--ring);
+  }
+
+  .parity-row input:checked:focus-visible + .pill {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 6px 14px -8px rgba(46, 68, 92, 0.6),
+      var(--ring);
   }
 }
 
@@ -410,6 +462,11 @@
     color: var(--color-ink);
     text-decoration: underline;
   }
+
+  .consent-row input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
 }
 
 @layer components {
@@ -422,7 +479,9 @@
     width: 100%;
     border: 0;
     border-radius: 1px;
-    padding: 22px 40px;
+    /* 40px each side is more than a 320px screen can spare once the card and
+       the page have taken their own padding, and the label would wrap. */
+    padding: 22px clamp(16px, 5vw, 40px);
     background-color: var(--color-btn-face);
     cursor: pointer;
     box-shadow:
@@ -432,6 +491,18 @@
     transition:
       transform 120ms ease,
       box-shadow 120ms ease;
+  }
+
+  /* The seam sits on ::after at z-index 2, so a ring drawn on the button itself
+     would be painted under it. This one is outside the box, where nothing
+     overlaps it. */
+  .btn-inlay:focus-visible {
+    outline: none;
+    box-shadow:
+      0 4px 10px rgba(74, 56, 40, 0.15),
+      0 2px 4px rgba(74, 56, 40, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      var(--ring);
   }
 
   .btn-inlay:active {
@@ -451,6 +522,20 @@
 
   .btn-inlay:disabled:active {
     transform: none;
+  }
+
+  /* The press is the only motion on the site, so this is the whole of reduced
+     motion here. The shadow still swaps on press, it just swaps instantly:
+     losing the feedback entirely would leave the button with no pressed state
+     at all. A blanket animation reset would be a lie about what this page does. */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-inlay {
+      transition: none;
+    }
+
+    .btn-inlay:active {
+      transform: none;
+    }
   }
 
   .btn-inlay::before {
@@ -539,18 +624,26 @@
     color: var(--color-ink);
   }
 
+  /* The glyph is 14px, which left a 22px tall target. The box grows to 28px
+     square for the thumb and the negative margins give the extra back to the
+     layout, so the arrows and the year label sit exactly where they did. */
   .cal-step {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    min-height: 28px;
     border: 0;
     border-radius: 2px;
-    padding: 4px 6px;
+    margin: -3px -1px;
+    padding: 0;
     background: transparent;
     color: var(--color-ink-soft);
     cursor: pointer;
   }
 
   .cal-step:disabled {
-    color: #b3a794;
+    color: var(--color-muted);
     cursor: default;
   }
 
@@ -577,15 +670,15 @@
   }
 
   .cal-month:disabled {
-    color: #b3a794;
+    color: var(--color-muted);
     cursor: default;
   }
 
-  /* Same fill and lift as the parity pills, and the same contrast debt:
-     #FFFFFF on #8AA6C2 is the spec value, and feature 7's pass owns it. */
+  /* Same fill and lift as the parity pills, and the same ink for the same
+     reason: the spec's white on #8AA6C2 is 2.5:1. */
   .cal-month[aria-pressed="true"] {
     background: #8aa6c2;
-    color: #ffffff;
+    color: var(--color-ink);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
       0 2px 5px -2px rgba(46, 68, 92, 0.6);
@@ -596,7 +689,7 @@
   .cal-month:focus-visible,
   .cal-step:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(122, 46, 46, 0.35);
+    box-shadow: var(--ring);
   }
 }
 
@@ -725,5 +818,17 @@
   .policy-lead {
     margin-top: 14px;
     text-align: center;
+  }
+}
+
+@layer components {
+  /* Inline links take the halo as a tight box-shadow rather than an outline, so
+     a wrapped link is ringed as one shape and the page keeps one focus look. */
+  .consent-row a:focus-visible,
+  .site-footer a:focus-visible,
+  .policy a:focus-visible {
+    outline: none;
+    border-radius: 2px;
+    box-shadow: var(--ring);
   }
 }
