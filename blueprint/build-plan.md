@@ -11,7 +11,7 @@ already looks right.
   `next/font`, the `#kerf` SVG filter, generated paper and felt texture tiles, the
   logo mark, and the site icon replacing the Next.js default. Ends with a blank
   paper page whose ground, card, and type are provably correct.
-- [ ] 2. **Waitlist form shell** - the full static form matching `Homepage.png`:
+- [x] 2. **Waitlist form shell** - the full static form matching `Homepage.png`:
   card, logo, heading, subcopy, hairline rule, every label and pressed well,
   parity pills, consent row, and the flush-inlay button. No validation, no submit.
 - [ ] 3. **Due date month picker** - the popover from section 06 with a year

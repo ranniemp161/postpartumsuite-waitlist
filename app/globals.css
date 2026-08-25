@@ -152,3 +152,235 @@
     opacity: 0.88;
   }
 }
+
+@layer components {
+  /* Section 03's rhythm and section 05's well are written in the spec as bare
+     element selectors (form, label, input). Applied literally they would also
+     hit the consent checkbox and the pill and consent labels, so every one of
+     them is scoped to a class here. */
+  .form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    /* Body's 1.7 is right for prose but wrong for every control and label in
+       here: inherited, it makes each well and label taller than the spec's
+       metrics and the extra pitch compounds down the form. The spec's sizes all
+       assume each face's own normal leading. .consent-row sets its own 1.55. */
+    line-height: normal;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .field-label {
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-head);
+    text-shadow: var(--t-emb);
+  }
+
+  /* A cut into the card, not a box on top of it: dark inner shadow on the near
+     wall, bounced light on the far wall, and a lit lip on the paper below.
+     The felt is background-blend-mode on the control itself because an input
+     cannot host a pseudo-element; blending the background layers leaves the
+     typed value untouched. */
+  .well {
+    box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    border-radius: 3px;
+    padding: 15px 16px;
+    font-family: var(--font-body);
+    font-size: 17.5px;
+    color: var(--color-ink);
+    background-color: var(--color-well);
+    background-image: var(--tile-felt);
+    background-size: 280px 280px;
+    background-blend-mode: soft-light;
+    outline: none;
+    box-shadow:
+      inset 0 2px 4px rgba(74, 56, 40, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.42),
+      0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  /* outline:none above is safe only because the spec replaces the ring with
+     this deeper cut plus the oxblood halo. */
+  .well:focus {
+    box-shadow:
+      inset 0 2px 5px rgba(74, 56, 40, 0.36),
+      0 0 0 2px rgba(122, 46, 46, 0.35);
+  }
+
+  .well::placeholder {
+    color: var(--color-placeholder);
+    font-style: italic;
+    opacity: 1;
+  }
+}
+
+@layer components {
+  .phone-row {
+    display: grid;
+    grid-template-columns: minmax(112px, auto) 1fr;
+    gap: 10px;
+  }
+
+  /* No chevron is drawn in its place. The spec and the mockup both show a bare
+     well, so the arrow's absence is deliberate; feature 7 decides whether the
+     affordance needs restoring. */
+  select.well {
+    padding: 15px 12px;
+    appearance: none;
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* A fieldset carries a border, padding, margins and a min-inline-size of
+     min-content by default, and a legend carries side padding. All of it has to
+     go or the group will not line up with the fields above. */
+  .parity-set {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+
+  .parity-set > legend {
+    padding: 0;
+  }
+
+  /* The legend is not a flex child of .field, so the 9px label rhythm is a
+     margin here. Gap measured off Homepage.png; the pills are content-sized. */
+  .parity-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 9px;
+  }
+
+  .pill {
+    border: 0;
+    border-radius: 2px;
+    padding: 11px 16px;
+    font-size: 16px;
+    color: var(--color-ink);
+    background: var(--color-well);
+    cursor: pointer;
+    box-shadow:
+      inset 0 2px 4px rgba(74, 56, 40, 0.28),
+      0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  /* The shallow well fills in and lifts: the inset light becomes a top lip and
+     the cast shadow puts the tab above the card instead of cut into it.
+     Contrast debt: #FFFFFF on #8AA6C2 is about 2.5:1, the same knowing AA
+     failure section 09 fixed for the button face. Section 09 does not cover the
+     pills, so this is the spec value; feature 7's pass decides. */
+  .parity-row input:checked + .pill {
+    background: #8aa6c2;
+    color: #ffffff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 6px 14px -8px rgba(46, 68, 92, 0.6);
+  }
+}
+
+@layer components {
+  .consent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16.5px;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--color-ink-soft);
+  }
+
+  /* Deliberately not a well. Homepage.png renders the browser's own checkbox
+     (its #767676 border is visible in the mockup), so only the size and the
+     checked colour are set. The margin reset matters: browsers ship a checkbox
+     with 3px/4px margins that would knock it out of line with the copy. */
+  .consent-row input[type="checkbox"] {
+    flex: none;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    accent-color: var(--color-accent);
+  }
+
+  .consent-row a {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+}
+
+@layer components {
+  /* A flush inlay, not a raised key: the blue is coplanar with the card, so
+     there is no drop shadow and no directional shading anywhere. The only cues
+     are the material change and one uniform seam. */
+  .btn-inlay {
+    position: relative;
+    /* Load-bearing. Without it the ::before soft-light blends against the card
+       instead of the button face and the felt grain disappears. */
+    isolation: isolate;
+    width: 100%;
+    border: 0;
+    border-radius: 1px;
+    padding: 22px 40px;
+    background-color: var(--color-btn-face);
+    cursor: pointer;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .btn-inlay:active {
+    transform: translateY(0.5px);
+  }
+
+  .btn-inlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 1px;
+    background-image: var(--tile-felt);
+    background-size: 280px 280px;
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* The seam is the same colour on all four sides, with no light or dark wall,
+     then roughened by the #kerf turbulence filter in the layout so the cut is
+     not a perfect vector line. */
+  .btn-inlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 1px;
+    box-shadow: 0 0 0 0.75px rgba(30, 46, 62, 0.36);
+    filter: url(#kerf);
+    pointer-events: none;
+  }
+
+  .btn-inlay > span {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-label-white);
+    /* Upper left only, so the label reads as pressed into the face. */
+    text-shadow: -1px -1px 0.5px rgba(8, 20, 34, 0.2);
+  }
+}

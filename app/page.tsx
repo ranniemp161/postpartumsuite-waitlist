@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
+
 export default function Home() {
   return (
     <div className="card-raised">
@@ -25,6 +27,8 @@ export default function Home() {
       </p>
 
       <hr className="hairline" />
+
+      <WaitlistForm />
     </div>
   );
 }
