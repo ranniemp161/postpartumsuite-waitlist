@@ -18,15 +18,22 @@ export default function Home() {
         className="logo-mark mx-auto"
       />
 
-      {/* The gaps below the mark are not in the CSS spec's rhythm section; they
-          are measured off Homepage.png. */}
-      <h1 className="mt-[20px] text-center">The Postpartum Suite</h1>
+      <h1 className="mt-[16px] text-center">Postpartum Suite</h1>
 
-      <p className="mx-auto mt-[20px] max-w-[38ch] text-center">
-        Join the wait list and we will be in touch.
+      <p 
+        className="mx-auto mt-[8px] max-w-[38ch] text-center italic text-[#6b5e4d] text-[19px]"
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        &quot;Because Mum Needs Looking After Too&quot;
       </p>
 
-      <hr className="hairline" />
+      <hr className="hairline !my-[16px]" />
+
+      <p className="mx-auto max-w-[42ch] text-center">
+        Join the waiting list. We will let you know as soon as we are live, Places are limited and dates are offered in the order people join.
+      </p>
+
+      <hr className="hairline !my-[24px]" />
 
       <WaitlistForm />
     </div>

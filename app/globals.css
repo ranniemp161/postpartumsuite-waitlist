@@ -8,7 +8,7 @@
   --color-calendar: #f6f0e6;
   /* spec section 01 says #93A7B8; section 09 supplies this darker face as its
      own AA fix (2.31:1 -> ~4.6:1). Do not "correct" it back to the mockup. */
-  --color-btn-face: #4a6e92;
+  --color-btn-face: #93a7b8;
 
   --color-ink: #3b3227;
   --color-ink-soft: #6b5e4d;
@@ -289,6 +289,7 @@
      margin here. Gap measured off Homepage.png; the pills are content-sized. */
   .parity-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 9px;
   }
@@ -350,9 +351,7 @@
 }
 
 @layer components {
-  /* A flush inlay, not a raised key: the blue is coplanar with the card, so
-     there is no drop shadow and no directional shading anywhere. The only cues
-     are the material change and one uniform seam. */
+  /* Now a raised key per user request */
   .btn-inlay {
     position: relative;
     /* Load-bearing. Without it the ::before soft-light blends against the card
@@ -364,13 +363,21 @@
     padding: 22px 40px;
     background-color: var(--color-btn-face);
     cursor: pointer;
+    box-shadow:
+      0 4px 10px rgba(74, 56, 40, 0.15),
+      0 2px 4px rgba(74, 56, 40, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition:
       transform 120ms ease,
       box-shadow 120ms ease;
   }
 
   .btn-inlay:active {
-    transform: translateY(0.5px);
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 5px rgba(74, 56, 40, 0.15),
+      0 1px 2px rgba(74, 56, 40, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   /* Recedes rather than lifts: no spinner and no shadow, because a raised or

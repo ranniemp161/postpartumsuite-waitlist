@@ -7,8 +7,7 @@ export const PARITY_OPTIONS = [
   { value: 1, label: "First" },
   { value: 2, label: "Second" },
   { value: 3, label: "Third" },
-  { value: 4, label: "Fourth" },
-  { value: 5, label: "Fifth or more" },
+  { value: 4, label: "Fourth or more" },
 ] as const;
 
 export const DIAL_CODES = [

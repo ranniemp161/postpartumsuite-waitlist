@@ -1,5 +1,6 @@
 "use server";
 
+import { saveSignup } from "@/lib/sheets";
 import { parseWaitlistForm, toFieldErrors } from "@/lib/waitlist-schema";
 import type { WaitlistFormState } from "@/types/waitlist";
 
@@ -17,9 +18,9 @@ export async function joinWaitlist(
       return { status: "invalid", fieldErrors: toFieldErrors(result.error) };
     }
 
-    // feature 5: saveSignup(result.data) lands here. Until it does this action
-    // validates and discards, so the page must not be deployed in that window.
     const signup = result.data;
+
+    await saveSignup(signup);
 
     return {
       status: "success",

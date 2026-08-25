@@ -82,7 +82,7 @@ export function WaitlistForm() {
       {/* The mockup shows one NAME field; splitting it is an approved deviation
           so the confirmation panel can echo a first name. Fixed two columns:
           narrow-screen stacking is feature 7. */}
-      <div className="grid grid-cols-2 gap-[10px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px]">
         {/* The label wraps nothing now: an error paragraph inside a <label>
             becomes part of the control's accessible name, so the message has to
             be a sibling and the association goes through htmlFor. */}
