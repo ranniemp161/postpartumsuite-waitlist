@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bodoni.variable} ${garamond.variable} ${plexSans.variable} antialiased`}
     >
-      <body className="flex min-h-screen flex-col items-center px-[clamp(20px,9vw,40px)] py-[clamp(24px,6vw,72px)]">
+      <body className="flex min-h-screen flex-col items-center px-[clamp(20px,9vw,40px)] pt-[clamp(14px,3vw,34px)] pb-[clamp(24px,6vw,72px)]">
         {children}
       </body>
     </html>

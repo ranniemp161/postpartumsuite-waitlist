@@ -32,7 +32,7 @@ export default function Home() {
               <>
                 <hr className="hairline" />
 
-                <p className="mx-auto mb-[29px] max-w-[34ch] text-center">
+                <p className="intro-copy">
                   Join the waiting list. We will let you know as soon as we are
                   live, Places are limited and dates are offered in the order
                   people join.

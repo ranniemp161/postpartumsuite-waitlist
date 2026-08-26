@@ -37,6 +37,12 @@
      family instead of a leftover from the paper palette. */
   --ring: 0 0 0 2px rgba(25, 69, 117, 0.45);
 
+  /* The wordmark is the widest fixed thing on the page, so the column is sized
+     to sit just past it. In the mockup the wordmark spans about 93% of the
+     content width; holding that ratio is what stops the form reading wider than
+     the masthead above it. */
+  --w-column: 520px;
+
   --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none' stroke='%23111111' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 1.4 5.5 5.6 9.8 1.4'/%3E%3C/svg%3E");
 }
 
@@ -60,7 +66,7 @@
     font-optical-sizing: none;
     font-variation-settings: "opsz" 10;
     font-weight: 520;
-    font-size: clamp(30px, 4.4vw, 42px);
+    font-size: clamp(30px, 5.4vw, 50px);
     line-height: 1.1;
     letter-spacing: 0.005em;
     color: var(--color-ink);
@@ -73,7 +79,19 @@
   .page-column {
     box-sizing: border-box;
     width: 100%;
-    max-width: 620px;
+    max-width: var(--w-column);
+  }
+
+  /* Three lines. The copy is about 132 characters, so the measure has to hold
+     roughly 45 to 50 per line; 40ch does that at any size in the clamp, because
+     both the measure and the glyphs scale with the font. */
+  .intro-copy {
+    max-width: 40ch;
+    margin: 0 auto clamp(22px, 3.4vw, 29px);
+    font-size: clamp(19px, 2.5vw, 23px);
+    line-height: 1.45;
+    text-align: center;
+    text-wrap: balance;
   }
 
   .site-logo {
@@ -89,10 +107,16 @@
     border: 0;
     width: 72%;
     max-width: 300px;
-    margin: 24px auto;
+    /* Sets the whole gap between the tagline and the intro copy, since neither
+       of those carries a margin on the facing side. Equal top and bottom keeps
+       the rule centred in the space it makes. */
+    margin: 15px auto;
     background: var(--color-rule);
   }
 
+  /* 26ch is what holds it to two lines: the full line is about 32ch, so the
+     measure has to sit under that, and text-wrap:balance then splits it evenly
+     after "Needs" rather than leaving a short second line. */
   .tagline {
     margin: 13px auto 0;
     max-width: 26ch;
@@ -101,7 +125,7 @@
     font-variation-settings: "opsz" 10;
     font-weight: 500;
     font-style: italic;
-    font-size: clamp(19px, 2.3vw, 26px);
+    font-size: clamp(22px, 3.6vw, 33px);
     line-height: 1.16;
     text-align: center;
     text-wrap: balance;
@@ -569,7 +593,7 @@
      treatment from section 03, not the pressed one. */
   .site-footer {
     width: 100%;
-    max-width: 620px;
+    max-width: var(--w-column);
     margin-top: clamp(22px, 3vw, 34px);
     font-family: var(--font-ui);
     font-size: 13px;
