@@ -9,17 +9,13 @@ export default function Home() {
     <>
       <main className="flex w-full flex-col items-center">
         <div className="page-column">
-          {/* Decorative: the h1 below carries the same words. The mark is drawn
-              flat now, so it is an image rather than the masked relief stack. */}
-          <Image
-            src={logo}
-            alt=""
-            aria-hidden="true"
-            priority
-            className="site-logo mx-auto"
-          />
-
-          <h1 className="mt-[15px] text-center">The Postpartum Suite</h1>
+          {/* The wordmark lives inside the artwork now, so the h1 is a frame for
+              it rather than type. The alt text is load-bearing: it is the only
+              thing left carrying the page's one level-one heading to a screen
+              reader or a search engine. */}
+          <h1 className="site-lockup">
+            <Image src={logo} alt="The Postpartum Suite" priority />
+          </h1>
 
           <p className="tagline">
             &quot;Because Mum&apos;s Need Looking After Too&quot;
@@ -33,9 +29,10 @@ export default function Home() {
                 <hr className="hairline" />
 
                 <p className="intro-copy">
-                  Join the waiting list. We will let you know as soon as we are
-                  live. Places are limited and dates are offered in the order
-                  people join.
+                  <strong>Join the waiting list.</strong>
+                  <br />
+                  Places are limited and dates are offered in the order people
+                  join.
                 </p>
               </>
             }

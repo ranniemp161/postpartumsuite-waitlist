@@ -81,24 +81,45 @@
     max-width: var(--w-column);
   }
 
-  /* Three lines. The copy is about 132 characters, so the measure has to hold
-     roughly 45 to 50 per line; 40ch does that at any size in the clamp, because
-     both the measure and the glyphs scale with the font. */
+  /* No measure of its own: it runs the full column so its edges line up with
+     the name row underneath, which is the widest thing on the page. The break
+     between the two sentences is a <br>, not wrapping, so the call to action
+     gets its own line whatever the width.
+
+     18px rather than 19 is what keeps the second sentence on one line: at 66
+     characters it needs about 500px, and the column gives 520. Deliberately not
+     text-wrap:balance, which shortens the longest line to match the others and
+     would pull the copy back into a narrow block in the middle of the column. */
   .intro-copy {
-    max-width: 40ch;
     margin: 0 auto clamp(22px, 3.4vw, 29px);
-    font-size: clamp(19px, 2.5vw, 23px);
+    font-size: clamp(16px, 2.1vw, 18px);
     line-height: 1.45;
     text-align: center;
-    text-wrap: balance;
   }
 
-  /* 116px, not 112px. The mark sits in a 500px square with more margin around
-     it than the old file had, so matching widths would have shrunk the circle
-     by about 4%. This keeps the circle the size the masthead was tuned to. */
-  .site-logo {
-    display: block;
-    width: 116px;
+  .intro-copy strong {
+    font-weight: 600;
+  }
+
+  /* The mark and the wordmark are one piece of artwork now, so the h1 stops
+     being type and becomes the frame that sizes it. 240px puts the circle at
+     about 160px and the widest word at about 190px, which reads as a masthead
+     without the lockup's own generous margins pushing the tagline down the
+     page. line-height:0 because the h1 still inherits a type scale it no
+     longer renders.
+
+     The width is now load-bearing for hierarchy, not just for looks. The
+     wordmark is baked into the artwork, so it no longer scales with the type
+     system: at 280px its cap height lands near 20px, which is what keeps it
+     above the tagline instead of under it. */
+  .site-lockup {
+    width: clamp(200px, 50vw, 280px);
+    margin: 0 auto;
+    line-height: 0;
+  }
+
+  .site-lockup img {
+    width: 100%;
     height: auto;
   }
 
@@ -127,7 +148,7 @@
     font-variation-settings: "opsz" 10;
     font-weight: 500;
     font-style: italic;
-    font-size: clamp(22px, 3.6vw, 33px);
+    font-size: clamp(18px, 2.6vw, 24px);
     line-height: 1.16;
     text-align: center;
     text-wrap: balance;
