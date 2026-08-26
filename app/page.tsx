@@ -2,19 +2,33 @@ import Image from "next/image";
 
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
-import logo from "@/public/logo.webp";
+import mark from "@/public/logo-mark.webp";
+import wordmark from "@/public/logo-text.webp";
 
 export default function Home() {
   return (
     <>
       <main className="flex w-full flex-col items-center">
         <div className="page-column">
-          {/* The wordmark lives inside the artwork now, so the h1 is a frame for
-              it rather than type. The alt text is load-bearing: it is the only
-              thing left carrying the page's one level-one heading to a screen
-              reader or a search engine. */}
+          {/* Two files rather than the combined artwork, so the mark can be
+              resized without dragging the wordmark with it. The wordmark's alt
+              text is load-bearing: it is the only thing carrying the page's one
+              level-one heading to a screen reader or a search engine, which is
+              why the mark beside it is marked decorative instead. */}
           <h1 className="site-lockup">
-            <Image src={logo} alt="The Postpartum Suite" priority />
+            <Image
+              src={mark}
+              alt=""
+              aria-hidden="true"
+              priority
+              className="site-mark"
+            />
+            <Image
+              src={wordmark}
+              alt="The Postpartum Suite"
+              priority
+              className="site-wordmark"
+            />
           </h1>
 
           <p className="tagline">

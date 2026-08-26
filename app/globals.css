@@ -108,18 +108,31 @@
      page. line-height:0 because the h1 still inherits a type scale it no
      longer renders.
 
-     The width is now load-bearing for hierarchy, not just for looks. The
-     wordmark is baked into the artwork, so it no longer scales with the type
-     system: at 280px its cap height lands near 20px, which is what keeps it
-     above the tagline instead of under it. */
+     The mark and the wordmark are separate files so the mark can shrink without
+     dragging the wordmark down with it. */
   .site-lockup {
-    width: clamp(200px, 50vw, 280px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
     margin: 0 auto;
     line-height: 0;
   }
 
-  .site-lockup img {
-    width: 100%;
+  /* Half the diameter it rendered at inside the combined artwork: 100px of file
+     width puts the circle at about 93px, where 280px of the old lockup put it
+     at 186px. Small enough to sit with the wordmark rather than shout over it. */
+  .site-mark {
+    width: clamp(71px, 18vw, 100px);
+    height: auto;
+  }
+
+  /* Unchanged at 280px, and load-bearing for hierarchy rather than only for
+     looks. The wordmark is pixels, not type, so it does not scale with the rest
+     of the system: at this width its cap height lands near 20px, which is what
+     keeps the title above the tagline instead of under it. */
+  .site-wordmark {
+    width: clamp(200px, 50vw, 280px);
     height: auto;
   }
 
