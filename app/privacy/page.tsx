@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
   return (
     <>
       <main className="flex w-full flex-col items-center">
-        <div className="card-raised policy">
+        <div className="page-column policy">
           <h1 className="text-center">Privacy policy</h1>
 
           <p className="policy-lead">
@@ -40,10 +40,22 @@ export default function PrivacyPolicy() {
             <li>your first and last name</li>
             <li>your email address</li>
             <li>your phone number</li>
+            <li>
+              the first part of your postcode only, such as SW7, not your full
+              postcode
+            </li>
             <li>the month your baby is due</li>
             <li>whether this is your first, second, or third or later baby</li>
             <li>that you ticked the consent box, and when you ticked it</li>
           </ul>
+          <p>
+            We ask for the first part of your postcode on purpose. A full UK
+            postcode points at roughly fifteen addresses, which is close enough
+            to your front door; the first part covers a whole district. It tells
+            us which areas to open in without telling us where you live. If you
+            type your full postcode, we keep only the first part and throw the
+            rest away.
+          </p>
           <p>
             We do not use analytics or advertising cookies, and the fonts on
             this site are served from our own domain, so visiting this page does
@@ -63,8 +75,9 @@ export default function PrivacyPolicy() {
           <p>
             To contact you about postpartum care becoming available in your
             area, and to work out where demand is concentrated so we can decide
-            where to open next. We do not sell it, and we do not use it to
-            advertise to you.
+            where to open next. The area you give us is what makes that
+            possible. We do not sell it, and we do not use it to advertise to
+            you.
           </p>
 
           <h2>Where it is kept</h2>

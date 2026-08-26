@@ -23,12 +23,23 @@ export function FieldError({
 
 // Colour is never the only signal: the message text is the signal, and these
 // two attributes are what tie it to the control for a screen reader.
+//
+// hintId is for a field that carries standing help text as well as an error.
+// Both ids go on aria-describedby, in reading order, so an error never costs
+// the visitor the hint that explains what the field wants.
 export function invalidProps(
   field: WaitlistField,
   errors: WaitlistFieldErrors,
-) {
-  if (!errors[field]) return {};
-  return { "aria-invalid": true, "aria-describedby": errorId(field) } as const;
+  hintId?: string,
+): { "aria-invalid"?: true; "aria-describedby"?: string } {
+  const describedBy = [hintId, errors[field] ? errorId(field) : null]
+    .filter(Boolean)
+    .join(" ");
+
+  return {
+    ...(errors[field] ? { "aria-invalid": true as const } : {}),
+    ...(describedBy ? { "aria-describedby": describedBy } : {}),
+  };
 }
 
 // For a <fieldset>, which maps to role="group". aria-invalid is not defined on

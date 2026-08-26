@@ -29,13 +29,12 @@ There are no accounts and no signed-in state anywhere in this project.
 In `build-plan.md` order. Feature 1 is the headline: the design is the
 requirement everything else is judged against, so the look lands before behaviour.
 
-1. **Design foundation** - the CSS specification transcribed into real code:
-   `@theme` tokens, self-hosted fonts, the `#kerf` SVG filter, generated texture
-   tiles, logo mark, and site icon.
-2. **Waitlist form shell** - the complete static form matching `Homepage.png`. No
-   validation, no submit.
-3. **Due date month picker** - year stepper plus 3x4 month grid in the spec's
-   popover, past months disabled, keyboard operable.
+1. **Design foundation** - `@theme` tokens, self-hosted fonts, logo mark, and
+   site icon. Originally the embossed-paper system; replaced wholesale by the
+   flat redesign (see UI/UX).
+2. **Waitlist form shell** - the complete static form. No validation, no submit.
+3. **Due date month picker** - year stepper plus 3x4 month grid in a popover,
+   past months disabled, keyboard operable.
 4. **Validation and submit states** - one shared Zod schema, inline errors,
    submitting state, and the confirmation panel that replaces the form.
 5. **Google Sheets persistence** - `saveSignup()` behind one typed module, with
@@ -44,6 +43,12 @@ requirement everything else is judged against, so the look lands before behaviou
 7. **Responsive and accessibility pass** - narrow screens, focus rings, aria
    wiring, reduced motion.
 8. **Deployment readiness** - Vercel config, London region, env vars, smoke test.
+
+Logged separately under `blueprint/history/fixes/`, not build-plan items:
+
+- **Flat redesign, plus outward postcode field** - the client replaced the visual
+  direction after feature 7 and added a location field. Reskinned every surface
+  and added `postcode_outward` as sheet column J.
 
 Out of scope for the MVP: accounts, login, booking, payments, admin dashboard,
 email sending, analytics, bot protection, duplicate detection, i18n, dark mode.
@@ -65,15 +70,28 @@ the schema** and later features depend on it.
 - `parity` (integer, required) - 1 to 3, where 3 means "third or more"
 - `consent` (boolean, required) - must be true to submit
 - `consent_at` (ISO 8601 string) - when consent was given
+- `postcode_outward` (string, required) - the outward code only, for example
+  `SW7`. Column J
 
 > **Locked shapes.** `due_month` is `YYYY-MM`, never a full date. `parity` is an
-> integer 1 to 3, never a label string. `phone` is always E.164. Features 3, 4,
-> and 5 all depend on these.
+> integer 1 to 3, never a label string. `phone` is always E.164.
+> `postcode_outward` is the outward code only, never a full postcode.
+
+> **`postcode_outward` sits last on purpose.** It belongs beside `due_month`
+> logically, but rows written before it existed are fixed text in the sheet, and
+> inserting a column mid-row would leave every earlier signup reading against the
+> wrong headers. Append new columns; never insert one.
 
 **Sensitivity.** Due month plus parity is pregnancy information, which is health
 data and special category data under UK GDPR Article 9. Consent is explicit,
 timestamped, and never pre-ticked; the sheet stays access-restricted; fonts are
 self-hosted so no visitor IP reaches a third-party CDN.
+
+Location is deliberately coarse. A full UK postcode identifies roughly fifteen
+addresses; an outward code covers a district of roughly eight thousand. Only the
+outward code is stored, and a visitor who types a full postcode has the inward
+half discarded before anything is written, which is the data minimisation UK GDPR
+Article 5(1)(c) asks for.
 
 All persistence sits behind a single typed `saveSignup(input)` module so the
 sheet can be replaced without touching the form, validation, or confirmation.
@@ -88,8 +106,8 @@ sheet can be replaced without touching the form, validation, or confirmation.
 - **Zod** - one schema shared by client and server validation
 - **google-auth-library + Sheets REST** - service-account row append, chosen over
   full `googleapis` for a single call
-- **next/font/google** - self-hosts Bodoni Moda, EB Garamond, IM Fell English SC,
-  IBM Plex Sans 600
+- **next/font/google** - self-hosts Bodoni Moda, EB Garamond, and IBM Plex Sans
+  400 (the button label, the only sans on the page)
 - **npm** - package manager
 
 Deliberately absent: ORM, database, auth, component library, state management,
@@ -108,54 +126,75 @@ this project.
 
 ## UI/UX
 
-**Design authority: `UI-design/Homepage.png` and `UI-design/design-token.png`.**
-Where anything disagrees with the design, the design wins, except the three
-approved deviations below.
+**Design authority: `UI-design/Homepage-v2.jpeg`.** The client replaced the
+embossed-paper direction after feature 7 shipped, so the earlier references
+(`Homepage.png`, `design-token.png`, `design-elements.html`,
+`design-system-spec.md`) describe a design that is no longer built. They are kept
+as history; do not build from them.
 
-### Approved deviations from the spec
+The mockup is a 2x render of a roughly 470px viewport, so every measurement below
+is a sampled pixel halved rather than an estimate. Where anything disagrees with
+the mockup, the mockup wins, except the approved deviations below.
 
-| Deviation | Spec | Built | Why |
+### Approved deviations from the mockup
+
+| Deviation | Mockup | Built | Why |
 | --- | --- | --- | --- |
 | Name | one combined field | first + last, side by side | confirmation echoes first name reliably |
-| Due date | Monday-first day grid, stores a Date | year stepper + month grid, stores `YYYY-MM` | a due date is an estimate |
-| Button face | `#93A7B8` (2.31:1, spec's own knowing AA failure) | `#4A6E92` (~4.6:1) | the spec supplies this value as its AA fix |
+| Due date | `DD / MM / YYYY` free text | `MM / YYYY` trigger opening a year stepper + month grid, stores `YYYY-MM` | a due date is an estimate, and the sheet column is locked on the month |
+| Parity pills | absent (mockup crops at the button) | kept, restyled | parity is the demand signal the project exists to gather |
+| Consent row | absent (same crop) | kept, restyled | explicit consent is a UK GDPR Article 9 requirement, not a style choice |
+| Field border | `#C1C1C1` (1.9:1, below the 3:1 WCAG 1.4.11 asks of a control boundary) | `#C1C1C1` | the design wins; compensated with a darker hover and a navy border on focus, not the halo alone. Raise `--color-line` to `#949494` if this is ever reversed |
+
+The parity pills and consent row have no reference image at all. They are drawn
+in the flat design's own language rather than invented: a field border at rest,
+the button's navy when chosen.
 
 ### Character
 
-Embossed paper, one light source at upper left. Depth from shadow ladders, never
-borders. Inputs are pressed wells cut into the card; the button is a flush inlay,
-coplanar with the surface, distinguished only by material and a roughened seam.
+Flat print on white. No texture, no card, no relief. Depth is not modelled at
+all: a control is separated from the page by a single hairline border, and the
+one saturated element is the button. High-contrast serif display type over a
+light hairline structure.
 
 ### Key values
 
-- Ground `#E2D7C6`, card `#E8DFD1`, well `#CBBEA8`, calendar `#F6F0E6`
-- The card is built on the ground colour with the paper tile, not `#E8DFD1` with
-  felt. The real scans made the two-colour split read as a pasted-on panel
-- Ink `#3B3227`, soft `#6B5E4D`, heading `#4A3F31`, oxblood accent `#7A2E2E`
-- Card max-width 620px, radius 5px, all padding in `clamp()`
-- Form gap 22px, label gap 9px
-- Texture never on a content surface: full-bleed `::before` at `z-index:0`, parent
-  `isolation:isolate`, `mix-blend-mode:soft-light`
-- Tile scale 512px page and card, 280px button and wells
-- Motion only on the button, 120ms ease on transform and box-shadow
-- Logo at 104px, drawn as section 19's three-layer masked deboss rather than a
-  flat image, so the relief is real
-- **Light theme only.** No dark variant is specified; the scaffold's
-  `prefers-color-scheme` override is removed.
+- Ground `#FFFFFF`, ink `#000000`, ink-soft `#4A4A4A`, placeholder `#858585`
+- Field border `#C1C1C1`, rule `#D8D8D8`, navy `#194575`, oxblood accent `#7A2E2E`
+- The design specifies no error state, so the oxblood is carried over from the
+  paper palette for messages and invalid borders. 5.9:1 on white
+- Content column max-width 620px, no card, radius 4px on fields and button
+- Form gap 24px, label gap 11px, label-to-hint gap 5px
+- Fields 40px tall (`9px 12px` padding), button 41.5px (`11px`), dial select
+  134px with a 15px gutter
+- Type: Bodoni Moda for the wordmark, tagline, field labels (bold caps, 11.5px,
+  `0.14em`), and policy headings; EB Garamond for body copy and italic
+  placeholders; IBM Plex Sans 400 for the button label only
+- Selected means one thing everywhere: a chosen month and a chosen parity pill
+  are both solid navy with a white label
+- Logo at 112px, a flat `<img>` of `public/logo.png`
+- Motion only on the button, 120ms ease on background-colour and transform
+- **Light theme only.** No dark variant is specified.
 
 ### Routes
 
 - `/` - the waitlist page. Form, then confirmation panel replacing it in place on
   success, echoing first name. No navigation on submit.
-- `/privacy` - the privacy policy, same paper theme, linked from the consent
-  checkbox.
+- `/privacy` - the privacy policy, same flat theme, linked from the consent
+  checkbox and the footer.
 
 ### Accessibility
 
 Real `<label>` on every field; placeholders never carry required information;
-oxblood focus ring on all interactive elements; parity pills are an arrow-key
-navigable radio group; month picker closes on Escape; errors announced, not
-colour-only; `prefers-reduced-motion` disables the button transition.
+navy focus ring on all interactive elements, with the field border darkening to
+navy as well so focus never rests on a faint halo alone; the area field's hint
+stays on `aria-describedby` alongside its error, so an error never costs the
+visitor the explanation; parity pills are an arrow-key navigable radio group;
+month picker closes on Escape; errors announced, not colour-only;
+`prefers-reduced-motion` disables the button transition.
+
+The one known gap is the field border contrast recorded in the deviations table
+above.
 
 ## Deployment
 
@@ -179,17 +218,22 @@ Preview deployment per feature branch. Production deploy stays explicit;
 Gaps and mismatches carried from the plans. Resolve in the plans, then re-run
 `/overview`.
 
-- **The mockup contradicts the approved button colour.** `Homepage.png` shows
-  `#93A7B8`; the approved build uses `#4A6E92`. This is intentional. Do not
-  "correct" the code back to the screenshot.
+- **The mockup crops at the button.** `Homepage-v2.jpeg` shows nothing below
+  `JOIN WAITLIST`, so the parity pills, the consent row, and the confirmation
+  panel are built in the design's language rather than matched to a reference.
+  Ask the client for the full-height design.
+- **Field borders are below the WCAG non-text minimum.** `#C1C1C1` is 1.9:1 on
+  white where 1.4.11 asks 3:1. Kept knowingly, recorded in the deviations table.
+  `--color-line: #949494` reverses it in one line.
+- **The area field's label wording.** The client wrote
+  "Your Location (first part of your poste code)"; the build uses "Your area"
+  with the explanation as a hint line, because a parenthetical that long in
+  letterspaced caps runs very wide. Confirm which she wants.
 - **Signup records have no stable identifier.** Row position is the only identity,
   which makes a GDPR deletion request manual and error-prone. Decide whether to
   add an id before the list grows.
-- **Logo filename contains a space** (`UI-design/TSB FAVACON.png`). Copy it into
-  the app under a space-free name.
-- **Privacy policy wording** needs a human author, not generated text.
+- **Privacy policy wording** needs a human author, not generated text. The page
+  is a factual account of what the code does, not reviewed by anyone qualified.
 - **Retention period** for signup data is undecided.
-- **"Your area"** is promised in the headline copy but has no operational meaning
-  defined yet.
 - **Duplicate emails**: reject, merge, or allow is undecided.
 - **Migration trigger** for moving off Google Sheets is undefined.

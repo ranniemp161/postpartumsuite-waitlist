@@ -1,72 +1,58 @@
 @import "tailwindcss";
 
+/* Values sampled from UI-design/Homepage-v2.jpeg, which is a 2x render of a
+   ~470px viewport, so every measurement below is the sampled pixel halved. */
 @theme {
-  /* paper stock, elevation ladder light to dark by height */
-  --color-sheet: #e2d7c6;
-  --color-card: #e8dfd1;
-  --color-well: #cbbea8;
-  --color-calendar: #f6f0e6;
-  /* Section 01 and Homepage.png. Section 09 offers #4A6E92 as an AA fix, since
-     the label sits on this face at 2.31:1 rather than the 4.5:1 AA asks for.
-     Feature 7 weighed that and kept the mockup: the pale face is the design,
-     and the failure is accepted knowingly rather than left unnoticed. Do not
-     "fix" it without asking. */
-  --color-btn-face: #93a7b8;
+  --color-sheet: #ffffff;
 
-  --color-ink: #3b3227;
-  --color-ink-soft: #6b5e4d;
-  --color-head: #4a3f31;
+  /* The mockup uses pure black for the wordmark, tagline, intro copy, and field
+     labels alike. There is no softer heading tone in this design. */
+  --color-ink: #000000;
+  --color-ink-soft: #4a4a4a;
+  --color-placeholder: #858585;
+
+  /* Field borders. 1.9:1 on white, below the 3:1 that WCAG 1.4.11 asks of a
+     control boundary. Kept because it is the design, and raised as a decision
+     in step 2 where the field borders are actually drawn. */
+  --color-line: #c1c1c1;
+  --color-rule: #d8d8d8;
+
+  --color-navy: #194575;
+  /* The mockup shows no error state, so the oxblood from the paper palette is
+     kept for messages and invalid borders. 5.9:1 on white. */
   --color-accent: #7a2e2e;
-  --color-label-white: #f3f7fb;
-  /* Was #8A7D6C, which sat at 2.19:1 on the well. Dropped to the palette's own
-     soft ink, 3.44:1, still two steps lighter than a typed value at 6.86:1. */
-  --color-placeholder: #6b5e4d;
-  /* The freed placeholder tone, now carrying the calendar's unavailable months
-     at 3.54:1 on the pale sheet instead of 2.09:1. */
-  --color-muted: #8a7d6c;
+  --color-label-white: #ffffff;
 
-  --radius-card: 5px;
+  --radius-card: 4px;
 }
 
 @theme inline {
   --font-display: var(--font-bodoni), Didot, Georgia, serif;
   --font-body: var(--font-garamond), Georgia, serif;
-  --font-label: var(--font-imfell), Georgia, serif;
   --font-ui: var(--font-plex), system-ui, sans-serif;
 }
 
 :root {
-  --t-emb:
-    1px 1px 0 rgba(255, 251, 242, 0.85), -1px -1px 1px rgba(70, 50, 34, 0.35);
+  /* Navy rather than oxblood, so focus reads as part of the button's colour
+     family instead of a leftover from the paper palette. */
+  --ring: 0 0 0 2px rgba(25, 69, 117, 0.45);
 
-  /* One focus language for the whole page: the oxblood halo section 05 gives
-     the wells, reused by every other control instead of a UA outline. */
-  --ring: 0 0 0 2px rgba(122, 46, 46, 0.35);
-
-  /* Same stroke and weight as the picker's calendar glyph, so the two controls
-     in the form that open something are marked the same way. */
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none' stroke='%236b5e4d' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 1.4 5.5 5.6 9.8 1.4'/%3E%3C/svg%3E");
-
-  /* Both tiles are the real scans extracted from the inline data URIs in
-     UI-design/design-elements.html (.stage.paper and element 20's card), not
-     the feTurbulence stand-ins that shipped while the assets were missing. */
-  --tile-paper: url("/textures/paper-tile.webp");
-  --tile-felt: url("/textures/felt-tile.webp");
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none' stroke='%23111111' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 1.4 5.5 5.6 9.8 1.4'/%3E%3C/svg%3E");
 }
 
 @layer base {
-  /* Without a background here the browser propagates body's background to the
-     canvas and paints body itself as transparent, which leaves .paper's
-     soft-light layer blending against nothing and turns the ground grey. */
+  /* Set on html as well as body so the canvas is painted white rather than
+     inheriting the UA default when body's own background is short. */
   html {
     background-color: var(--color-sheet);
   }
 
   body {
-    color: var(--color-ink-soft);
+    background-color: var(--color-sheet);
+    color: var(--color-ink);
     font-family: var(--font-body);
-    font-size: 17.5px;
-    line-height: 1.7;
+    font-size: 19px;
+    line-height: 1.42;
   }
 
   h1 {
@@ -77,160 +63,51 @@
     font-size: clamp(30px, 4.4vw, 42px);
     line-height: 1.1;
     letter-spacing: 0.005em;
-    color: var(--color-head);
-    text-shadow: var(--t-emb);
+    color: var(--color-ink);
   }
 }
 
 @layer components {
-  /* Surfaces. The tile never goes on a surface that also holds content, or
-     soft-light would blend the type as well. It goes on a full-bleed
-     pseudo-element underneath, and the content is lifted above it. Each surface
-     sets its own tile and scale; the mechanism below is shared. */
-  .paper {
-    --tile: var(--tile-paper);
-    --tile-scale: 512px;
-    background-color: var(--color-sheet);
-  }
-
-  .card-raised {
-    --tile: var(--tile-paper);
-    --tile-scale: 512px;
+  /* The design has no card. Content is a centred column on the page itself, so
+     this sets width and nothing else. */
+  .page-column {
     box-sizing: border-box;
     width: 100%;
     max-width: 620px;
-    border-radius: var(--radius-card);
-    padding: clamp(34px, 4.6vw, 56px) clamp(24px, 3.4vw, 48px)
-      clamp(36px, 4.4vw, 52px);
-    background-color: var(--color-sheet);
-    /* Depth is a shadow ladder, never a border. Reading down: the silhouette
-       ring keeps the top edge from vanishing against the ground, two lines cut
-       the edge, contact and cast shadows lift it off the page, and the last two
-       are light rather than shade, the lit inner lip and the warm bounce from
-       upper left. */
-    box-shadow:
-      0 0 0 1px rgba(120, 98, 74, 0.06),
-      0 1px 0 rgba(184, 166, 140, 0.75),
-      0 2px 1px rgba(164, 146, 120, 0.55),
-      0 4px 6px rgba(84, 62, 44, 0.11),
-      0 9px 16px rgba(84, 62, 44, 0.08),
-      inset 0 1px 0 rgba(250, 243, 229, 0.5),
-      -1px -1px 3px rgba(248, 240, 225, 0.4);
   }
 
-  .paper,
-  .card-raised {
-    position: relative;
-    isolation: isolate;
+  .site-logo {
+    display: block;
+    width: 112px;
+    height: auto;
   }
 
-  .paper::before,
-  .card-raised::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    background-image: var(--tile);
-    background-size: var(--tile-scale) var(--tile-scale);
-    background-repeat: repeat;
-    mix-blend-mode: soft-light;
-    opacity: 0.85;
-    pointer-events: none;
-  }
-
-  .paper > *,
-  .card-raised > * {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-@layer components {
-  /* Multiply rather than a plain paste, so the paper grain reads through the
-     cream disc instead of the mark sitting on a flat cut-out circle. */
-  /* A cut in the stock, not a drawn line: the gradient fades to nothing at both
-     ends and the white shadow underneath is the lit lip below the cut. */
+  /* Stops short of the column edge in the mockup, about 72% of the content
+     width, which is what keeps it reading as a breath mark and not a divider. */
   .hairline {
     height: 1px;
     border: 0;
-    margin: clamp(26px, 3.4vw, 38px) 0;
-    background: linear-gradient(
-      90deg,
-      rgba(74, 56, 40, 0) 0%,
-      rgba(74, 56, 40, 0.22) 50%,
-      rgba(74, 56, 40, 0) 100%
-    );
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+    width: 72%;
+    max-width: 300px;
+    margin: 24px auto;
+    background: var(--color-rule);
   }
 
-  /* Section 19. Three copies of the same alpha mask, offset by a fraction of a
-     pixel and stacked: dark toward the upper left, light toward the lower
-     right, the solid ink on top. Only a sliver of each fringe shows past the
-     stroke, and that sliver is the whole depth cue. The section notes a filter
-     plus drop-shadow was tried first and abandoned, because the mask clips the
-     shadow after the fact in some browsers. */
-  .logo-deboss {
-    position: relative;
-    width: 104px;
-    /* 480x474 native, so height is not width */
-    aspect-ratio: 480 / 474;
-  }
-
-  .logo-deboss > span {
-    position: absolute;
-    inset: 0;
-    -webkit-mask-image: url("/logo-mask.png");
-    mask-image: url("/logo-mask.png");
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-  }
-
-  .ld-shadow {
-    background: #050301;
-    transform: translate(-0.6px, -0.6px);
-    filter: blur(0.5px);
-    opacity: 0.85;
-    z-index: 1;
-  }
-
-  .ld-light {
-    background: #fbf3e3;
-    transform: translate(0.6px, 0.6px);
-    filter: blur(0.5px);
-    opacity: 0.75;
-    z-index: 2;
-  }
-
-  .ld-main {
-    background: #16110c;
-    z-index: 3;
-  }
-
-  /* Section 02's <em>, which is where the reddish italic display face is
-     specified. The tagline is the only place on the page that uses it. */
   .tagline {
-    margin: 10px auto 0;
-    max-width: 30ch;
+    margin: 13px auto 0;
+    max-width: 26ch;
     font-family: var(--font-display);
     font-optical-sizing: none;
     font-variation-settings: "opsz" 10;
-    font-weight: 520;
+    font-weight: 500;
     font-style: italic;
-    font-size: clamp(19px, 2.2vw, 25px);
-    line-height: 1.15;
-    letter-spacing: -0.005em;
+    font-size: clamp(19px, 2.3vw, 26px);
+    line-height: 1.16;
     text-align: center;
     text-wrap: balance;
-    color: #6e2020;
-    text-shadow: var(--t-emb);
+    color: var(--color-ink);
   }
 }
-
 @layer components {
   /* Section 03's rhythm and section 05's well are written in the spec as bare
      element selectors (form, label, input). Applied literally they would also
@@ -239,7 +116,7 @@
   .form-stack {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 24px;
     /* Body's 1.7 is right for prose but wrong for every control and label in
        here: inherited, it makes each well and label taller than the spec's
        metrics and the extra pitch compounds down the form. The spec's sizes all
@@ -250,68 +127,79 @@
   .field {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 11px;
   }
 
+  /* Bodoni bold, not a sans. Zooming the mockup's labels shows bracketed
+     serifs and Didone stroke contrast, so the label face is the display face
+     carrying weight rather than a separate UI font. */
   .field-label {
-    font-family: var(--font-label);
-    font-size: 12px;
-    letter-spacing: 0.16em;
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 10;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-head);
-    text-shadow: var(--t-emb);
+    color: var(--color-ink);
   }
 
-  /* A cut into the card, not a box on top of it: dark inner shadow on the near
-     wall, bounced light on the far wall, and a lit lip on the paper below.
-     The felt is background-blend-mode on the control itself because an input
-     cannot host a pseudo-element; blending the background layers leaves the
-     typed value untouched. */
+  /* Label plus standing help text read as one unit, so the tighter gap here
+     keeps the pair from spending the full 11px label rhythm twice. */
+  .label-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field-hint {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-style: italic;
+    line-height: 1.35;
+    color: var(--color-ink-soft);
+  }
+
+  /* A box on the page, not a cut into it. One hairline border, white fill, and
+     nothing else: the depth language is gone, so the only thing separating a
+     field from the ground is the line around it. */
   .well {
     box-sizing: border-box;
     width: 100%;
-    border: 0;
-    border-radius: 3px;
-    padding: 15px 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    padding: 9px 12px;
     font-family: var(--font-body);
     font-size: 17.5px;
     color: var(--color-ink);
-    background-color: var(--color-well);
-    background-image: var(--tile-felt);
-    background-size: 280px 280px;
-    background-blend-mode: soft-light;
+    background-color: var(--color-sheet);
     outline: none;
-    box-shadow:
-      inset 0 2px 4px rgba(74, 56, 40, 0.3),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.42),
-      0 1px 0 rgba(255, 255, 255, 0.85);
   }
 
-  /* outline:none above is safe only because the spec replaces the ring with
-     this deeper cut plus the oxblood halo. */
+  .well:hover {
+    border-color: #a8a8a8;
+  }
+
+  /* The border darkens to navy as well as taking the halo. On a flat design the
+     halo alone is easy to miss against a light border. */
   .well:focus {
-    box-shadow:
-      inset 0 2px 5px rgba(74, 56, 40, 0.36),
-      var(--ring);
+    border-color: var(--color-navy);
+    box-shadow: var(--ring);
   }
 
   /* Stronger than the focus halo, because this one has to read while focus is
      somewhere else entirely. */
   .well[aria-invalid="true"] {
-    box-shadow:
-      inset 0 2px 4px rgba(74, 56, 40, 0.3),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.42),
-      0 0 0 2px rgba(122, 46, 46, 0.5);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
   }
 
   .well[aria-invalid="true"]:focus {
-    box-shadow:
-      inset 0 2px 5px rgba(74, 56, 40, 0.36),
-      0 0 0 2px rgba(122, 46, 46, 0.5);
+    box-shadow: 0 0 0 2px rgba(122, 46, 46, 0.4);
   }
 
   /* Every field keeps a live region whether or not it has a message, so the
-     silent ones must not spend any of the 22px form rhythm. */
+     silent ones must not spend any of the form rhythm. */
   .field-error {
     font-family: var(--font-body);
     font-size: 14.5px;
@@ -332,38 +220,32 @@
 }
 
 @layer components {
+  /* 134px and the 15px gutter are measured off the mockup's phone row. */
   .phone-row {
     display: grid;
-    grid-template-columns: minmax(112px, auto) 1fr;
-    gap: 10px;
+    grid-template-columns: minmax(104px, 134px) 1fr;
+    gap: 15px;
   }
 
   /* A grid item's automatic minimum is its content, and an input's content
      minimum is the ~20 character box the UA gives it whatever width:100% says.
      Without this the number field refuses to go under about 177px and the row
-     pushes the card wider than a 320px screen. */
+     pushes the page wider than a 320px screen. */
   .phone-row .well {
     min-width: 0;
   }
 
-  /* appearance:none takes the native arrow with it, and the mockup shows a bare
-     well in its place. A control that opens a menu has to look like one, so the
-     arrow comes back drawn in the calendar icon's ink rather than the UA's.
-     It rides as a second background layer over the felt: the felt keeps its
-     soft-light blend, the chevron is painted normally on top of it.
-     The 30px right padding fits inside the 112px the phone row already gives
-     this column, so nothing moves. */
+  /* appearance:none takes the native arrow with it, and a control that opens a
+     menu has to look like one, so the chevron is drawn back in the ink colour
+     rather than the UA's. */
   select.well {
-    padding: 15px 30px 15px 12px;
+    padding-right: 30px;
     appearance: none;
     cursor: pointer;
-    background-image: var(--chevron), var(--tile-felt);
-    background-size: 11px auto, 280px 280px;
-    background-position:
-      right 11px center,
-      0 0;
-    background-repeat: no-repeat, repeat;
-    background-blend-mode: normal, soft-light;
+    background-image: var(--chevron);
+    background-size: 11px auto;
+    background-position: right 11px center;
+    background-repeat: no-repeat;
   }
 }
 
@@ -382,56 +264,44 @@
     padding: 0;
   }
 
-  /* The legend is not a flex child of .field, so the 9px label rhythm is a
-     margin here. Gap measured off Homepage.png; the pills are content-sized. */
+  /* The legend is not a flex child of .field, so the label rhythm is a margin
+     here rather than a gap. */
   .parity-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 9px;
+    gap: 10px;
+    margin-top: 11px;
   }
 
+  /* Not in the mockup, which crops at the button, so this is the flat design's
+     own language applied to the control: a field border when resting, the
+     button's navy when chosen. */
   .pill {
-    border: 0;
-    border-radius: 2px;
-    padding: 11px 16px;
-    font-size: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 17px;
     color: var(--color-ink);
-    background: var(--color-well);
+    background: var(--color-sheet);
     cursor: pointer;
-    box-shadow:
-      inset 0 2px 4px rgba(74, 56, 40, 0.28),
-      0 1px 0 rgba(255, 255, 255, 0.85);
   }
 
-  /* The shallow well fills in and lifts: the inset light becomes a top lip and
-     the cast shadow puts the tab above the card instead of cut into it.
-     The fill is the spec's; the label is not. White on #8AA6C2 is 2.5:1, the
-     same failure section 09 fixed for the button, and section 09 does not cover
-     the pills. Ink keeps the mockup's fill exactly and reads at 4.97:1. */
+  .pill:hover {
+    border-color: #a8a8a8;
+  }
+
   .parity-row input:checked + .pill {
-    background: #8aa6c2;
-    color: var(--color-ink);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.42),
-      0 6px 14px -8px rgba(46, 68, 92, 0.6);
+    border-color: var(--color-navy);
+    background: var(--color-navy);
+    color: var(--color-label-white);
   }
 
   /* The radio itself is sr-only, so without these the arrow keys move a focus
-     nobody can see. Each restates its own resting ladder because box-shadow
-     does not cascade one layer at a time. */
+     nobody can see. */
   .parity-row input:focus-visible + .pill {
-    box-shadow:
-      inset 0 2px 4px rgba(74, 56, 40, 0.28),
-      0 1px 0 rgba(255, 255, 255, 0.85),
-      var(--ring);
-  }
-
-  .parity-row input:checked:focus-visible + .pill {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.42),
-      0 6px 14px -8px rgba(46, 68, 92, 0.6),
-      var(--ring);
+    border-color: var(--color-navy);
+    box-shadow: var(--ring);
   }
 }
 
@@ -440,22 +310,22 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    font-family: var(--font-body);
     font-size: 16.5px;
     font-style: italic;
     line-height: 1.55;
     color: var(--color-ink-soft);
   }
 
-  /* Deliberately not a well. Homepage.png renders the browser's own checkbox
-     (its #767676 border is visible in the mockup), so only the size and the
-     checked colour are set. The margin reset matters: browsers ship a checkbox
-     with 3px/4px margins that would knock it out of line with the copy. */
+  /* The browser's own checkbox, resized and recoloured. The margin reset
+     matters: browsers ship a checkbox with 3px/4px margins that would knock it
+     out of line with the copy. */
   .consent-row input[type="checkbox"] {
     flex: none;
     width: 19px;
     height: 19px;
     margin: 0;
-    accent-color: var(--color-accent);
+    accent-color: var(--color-navy);
   }
 
   .consent-row a {
@@ -470,123 +340,73 @@
 }
 
 @layer components {
-  /* Now a raised key per user request */
-  .btn-inlay {
-    position: relative;
-    /* Load-bearing. Without it the ::before soft-light blends against the card
-       instead of the button face and the felt grain disappears. */
-    isolation: isolate;
+  /* A solid navy block the full width of the column. No inlay, no seam, no
+     felt: the button is the one saturated thing on the page and that is all the
+     emphasis it needs. */
+  .btn-primary {
     width: 100%;
     border: 0;
-    border-radius: 1px;
-    /* 40px each side is more than a 320px screen can spare once the card and
-       the page have taken their own padding, and the label would wrap. */
-    padding: 22px clamp(16px, 5vw, 40px);
-    background-color: var(--color-btn-face);
+    border-radius: 4px;
+    padding: 11px clamp(16px, 5vw, 40px);
+    background-color: var(--color-navy);
     cursor: pointer;
-    box-shadow:
-      0 4px 10px rgba(74, 56, 40, 0.15),
-      0 2px 4px rgba(74, 56, 40, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition:
-      transform 120ms ease,
-      box-shadow 120ms ease;
+      background-color 120ms ease,
+      transform 120ms ease;
   }
 
-  /* The seam sits on ::after at z-index 2, so a ring drawn on the button itself
-     would be painted under it. This one is outside the box, where nothing
-     overlaps it. */
-  .btn-inlay:focus-visible {
+  .btn-primary:hover:not(:disabled) {
+    background-color: #14395f;
+  }
+
+  .btn-primary:focus-visible {
     outline: none;
     box-shadow:
-      0 4px 10px rgba(74, 56, 40, 0.15),
-      0 2px 4px rgba(74, 56, 40, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      var(--ring);
+      0 0 0 2px var(--color-sheet),
+      0 0 0 4px var(--color-navy);
   }
 
-  .btn-inlay:active {
-    transform: translateY(2px);
-    box-shadow:
-      0 2px 5px rgba(74, 56, 40, 0.15),
-      0 1px 2px rgba(74, 56, 40, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
-  /* Recedes rather than lifts: no spinner and no shadow, because a raised or
-     animated state would break the flush inlay the whole button is built on. */
-  .btn-inlay:disabled {
+  .btn-primary:disabled {
     cursor: default;
-    opacity: 0.62;
-  }
-
-  .btn-inlay:disabled:active {
-    transform: none;
+    opacity: 0.55;
   }
 
   /* The press is the only motion on the site, so this is the whole of reduced
-     motion here. The shadow still swaps on press, it just swaps instantly:
-     losing the feedback entirely would leave the button with no pressed state
-     at all. A blanket animation reset would be a lie about what this page does. */
+     motion here. */
   @media (prefers-reduced-motion: reduce) {
-    .btn-inlay {
+    .btn-primary {
       transition: none;
     }
 
-    .btn-inlay:active {
+    .btn-primary:active {
       transform: none;
     }
   }
 
-  .btn-inlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: 1px;
-    background-image: var(--tile-felt);
-    background-size: 280px 280px;
-    mix-blend-mode: soft-light;
-    opacity: 0.55;
-    pointer-events: none;
-  }
-
-  /* The seam is the same colour on all four sides, with no light or dark wall,
-     then roughened by the #kerf turbulence filter in the layout so the cut is
-     not a perfect vector line. */
-  .btn-inlay::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: 1px;
-    box-shadow: 0 0 0 0.75px rgba(30, 46, 62, 0.36);
-    filter: url(#kerf);
-    pointer-events: none;
-  }
-
-  .btn-inlay > span {
-    position: relative;
-    z-index: 1;
+  .btn-primary > span {
     font-family: var(--font-ui);
-    font-weight: 600;
+    font-weight: 400;
     font-size: 17px;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-label-white);
-    /* Upper left only, so the label reads as pressed into the face. */
-    text-shadow: -1px -1px 0.5px rgba(8, 20, 34, 0.2);
   }
 }
 
 @layer components {
-  /* Spec section 06. The popover is absolute, so the field it hangs from has to
-     be the containing block; top:100% lands it under the trigger because the
-     trigger is the last thing in the field. */
+  /* The popover is absolute, so the field it hangs from has to be the
+     containing block; top:100% lands it under the trigger because the trigger
+     is the last thing in the field. */
   .date-field {
     position: relative;
   }
 
+  /* Floating on white, so it needs a real edge rather than a tonal step: the
+     same hairline the fields use, plus a soft shadow to lift it off the page. */
   .cal-popover {
     position: absolute;
     top: 100%;
@@ -594,16 +414,12 @@
     z-index: 20;
     box-sizing: border-box;
     width: min(340px, 100%);
-    margin-top: 8px;
+    margin-top: 6px;
     padding: 16px 16px 18px;
-    border-radius: 3px;
-    background: var(--color-calendar);
-    /* Floating, not cut in: a lit top edge, a long soft cast shadow, and a
-       hairline ring so the pale sheet keeps its edge against the card. */
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 18px 34px -14px rgba(74, 56, 40, 0.45),
-      0 0 0 1px rgba(74, 56, 40, 0.16);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    background: var(--color-sheet);
+    box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.28);
   }
 
   .cal-head {
@@ -613,13 +429,15 @@
     margin-bottom: 12px;
   }
 
-  /* The spec styles a weekday header row, which a month grid does not have, so
-     its recipe is reused for the year label instead: same face and tracking,
-     two steps up in size and in ink because this is the panel's only heading. */
+  /* The panel's only heading, so it takes the field label's recipe two steps up
+     in size. */
   .cal-year {
-    font-family: var(--font-label);
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 10;
+    font-weight: 700;
     font-size: 13px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-ink);
   }
@@ -634,22 +452,25 @@
     min-width: 28px;
     min-height: 28px;
     border: 0;
-    border-radius: 2px;
+    border-radius: 3px;
     margin: -3px -1px;
     padding: 0;
     background: transparent;
-    color: var(--color-ink-soft);
+    color: var(--color-ink);
     cursor: pointer;
   }
 
+  .cal-step:hover:not(:disabled) {
+    background: #f2f2f2;
+  }
+
   .cal-step:disabled {
-    color: var(--color-muted);
+    color: var(--color-placeholder);
     cursor: default;
   }
 
-  /* Section 06's repeat(7,1fr) and 3px gap are a Monday-first day grid. The 3x4
-     month grid is the approved deviation, so the columns and the gap change and
-     nothing else does: twelve wide cells need air the 3px was never sized for. */
+  /* Twelve wide cells in a 3x4 grid, the approved deviation from the spec's
+     Monday-first day grid. */
   .cal-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -658,7 +479,7 @@
 
   .cal-month {
     border: 0;
-    border-radius: 2px;
+    border-radius: 3px;
     padding: 9px 0;
     /* A button takes the UA font, not the document's, so both are restated. */
     font-family: var(--font-body);
@@ -669,23 +490,22 @@
     cursor: pointer;
   }
 
+  .cal-month:hover:not(:disabled):not([aria-pressed="true"]) {
+    background: #f2f2f2;
+  }
+
   .cal-month:disabled {
-    color: var(--color-muted);
+    color: var(--color-placeholder);
     cursor: default;
   }
 
-  /* Same fill and lift as the parity pills, and the same ink for the same
-     reason: the spec's white on #8AA6C2 is 2.5:1. */
+  /* The same navy fill the parity pills take when chosen, so "selected" means
+     one thing across the whole form. */
   .cal-month[aria-pressed="true"] {
-    background: #8aa6c2;
-    color: var(--color-ink);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 2px 5px -2px rgba(46, 68, 92, 0.6);
+    background: var(--color-navy);
+    color: var(--color-label-white);
   }
 
-  /* The wells replace their outline with the oxblood halo from section 05;
-     these sit on the pale sheet, where the same halo alone is enough. */
   .cal-month:focus-visible,
   .cal-step:focus-visible {
     outline: none;
@@ -708,14 +528,13 @@
     text-align: center;
   }
 
-  /* Section 18's debossed separator, cut short. A full-width rule would read as
-     the divider that used to sit here; a 54px one reads as a mark. */
+  /* A short rule rather than a full-width one: at 54px it reads as a mark,
+     where a full-width rule would read as the divider that used to sit here. */
   .confirm-panel::before {
     content: "";
     width: 54px;
     height: 1px;
-    background: rgba(52, 38, 26, 0.32);
-    box-shadow: 0 1px 0 rgba(250, 243, 229, 0.55);
+    background: var(--color-rule);
   }
 
   .confirm-title {
@@ -727,8 +546,7 @@
     font-size: clamp(27px, 3.6vw, 36px);
     line-height: 1.12;
     letter-spacing: -0.005em;
-    color: var(--color-head);
-    text-shadow: var(--t-emb);
+    color: var(--color-ink);
     /* A long first name must not force a two-line break mid-phrase. */
     text-wrap: balance;
     overflow-wrap: anywhere;
@@ -789,17 +607,24 @@
 
   .policy h2 {
     margin: clamp(26px, 3vw, 34px) 0 8px;
-    font-family: var(--font-label);
-    font-size: 15px;
+    font-family: var(--font-display);
+    font-optical-sizing: none;
+    font-variation-settings: "opsz" 10;
+    font-weight: 700;
+    font-size: 14px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-head);
-    text-shadow: var(--t-emb);
+    color: var(--color-ink);
+  }
+
+  .policy p,
+  .policy li {
+    max-width: 62ch;
+    line-height: 1.65;
   }
 
   .policy p {
     margin: 0 0 12px;
-    max-width: 62ch;
   }
 
   .policy ul {

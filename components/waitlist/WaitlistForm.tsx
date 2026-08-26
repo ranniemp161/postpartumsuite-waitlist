@@ -32,6 +32,7 @@ import {
 import type { WaitlistFormState } from "@/types/waitlist";
 
 const INITIAL_STATE: WaitlistFormState = { status: "idle" };
+const POSTCODE_HINT_ID = "postcode_outward_hint";
 const NO_ERRORS: WaitlistFieldErrors = {};
 
 export function WaitlistForm({ intro }: { intro?: ReactNode }) {
@@ -199,6 +200,37 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
           <FieldError field="phone_national" errors={errors} />
         </div>
 
+        {/* Sits with the contact details rather than the pregnancy questions:
+            it answers where she is, not anything about the birth. Only the
+            outward code is asked for and only the outward code is stored, which
+            is the promise the privacy policy has to keep. */}
+        <div className="field">
+          <div className="label-group">
+            <label className="field-label" htmlFor="postcode_outward">
+              Your area
+            </label>
+            <p className="field-hint" id={POSTCODE_HINT_ID}>
+              First part of your postcode, for example SW7
+            </p>
+          </div>
+
+          {/* uppercase is display only; the value posts as typed and the server
+              normalises it, so a visitor pasting a full postcode in lower case
+              still lands on the right outward code. */}
+          <input
+            className="well uppercase"
+            type="text"
+            id="postcode_outward"
+            name="postcode_outward"
+            inputMode="text"
+            autoComplete="postal-code"
+            maxLength={8}
+            placeholder="SW7"
+            {...invalidProps("postcode_outward", errors, POSTCODE_HINT_ID)}
+          />
+          <FieldError field="postcode_outward" errors={errors} />
+        </div>
+
         <DueMonthPicker
           errors={errors}
           onPick={(dueMonth) => revalidate("due_month", dueMonth)}
@@ -266,8 +298,8 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
 
         {/* Disabling the button is what stops a double submit; the action itself
             is not idempotent, and feature 5 turns a second click into a second row. */}
-        <button type="submit" className="btn-inlay" disabled={pending}>
-          <span>{pending ? "Joining..." : "Join our wait list"}</span>
+        <button type="submit" className="btn-primary" disabled={pending}>
+          <span>{pending ? "Joining..." : "Join waitlist"}</span>
         </button>
       </form>
     </>

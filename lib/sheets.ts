@@ -14,9 +14,14 @@ const API_ROOT = "https://sheets.googleapis.com/v4/spreadsheets";
 // submit open indefinitely.
 const REQUEST_TIMEOUT_MS = 10_000;
 
-// The nine cells of one signup, in the order the sheet's columns are fixed in.
+// The ten cells of one signup, in the order the sheet's columns are fixed in.
 // Positional, so a reordered sheet corrupts every later row: see the Data
 // contract in project-overview.md before touching this.
+//
+// postcode_outward is appended last rather than sitting beside due_month where
+// it belongs logically. Rows already in the sheet are fixed text; inserting a
+// column mid-row would leave every earlier signup's values reading against the
+// wrong headers. Column J needs its header cell added by hand.
 export type SheetRow = [
   created_at: string,
   first_name: string,
@@ -27,6 +32,7 @@ export type SheetRow = [
   parity: number,
   consent: boolean,
   consent_at: string,
+  postcode_outward: string,
 ];
 
 export class SheetsConfigError extends Error {
@@ -52,6 +58,7 @@ export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
     input.parity,
     input.consent,
     at,
+    input.postcode_outward,
   ];
 }
 

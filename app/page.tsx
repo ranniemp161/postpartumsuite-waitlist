@@ -1,23 +1,25 @@
+import Image from "next/image";
+
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
+import logo from "@/public/logo.png";
 
 export default function Home() {
   return (
     <>
-      {/* w-full and the centring are body's own layout, restated here so the
-          landmark wraps the card without becoming a shrink-to-fit box. */}
       <main className="flex w-full flex-col items-center">
-        <div className="card-raised">
-          {/* Section 19's blind deboss: three masked copies of the mark, not an
-            <img>, so the relief is real rather than baked into the asset.
-            Decorative, because the h1 below carries the same words. */}
-          <div className="logo-deboss mx-auto" aria-hidden="true">
-            <span className="ld-shadow" />
-            <span className="ld-light" />
-            <span className="ld-main" />
-          </div>
+        <div className="page-column">
+          {/* Decorative: the h1 below carries the same words. The mark is drawn
+              flat now, so it is an image rather than the masked relief stack. */}
+          <Image
+            src={logo}
+            alt=""
+            aria-hidden="true"
+            priority
+            className="site-logo mx-auto"
+          />
 
-          <h1 className="mt-[16px] text-center">The Postpartum Suite</h1>
+          <h1 className="mt-[15px] text-center">The Postpartum Suite</h1>
 
           <p className="tagline">
             &quot;Because Mum Needs Looking After Too&quot;
@@ -28,13 +30,13 @@ export default function Home() {
           <WaitlistForm
             intro={
               <>
-                <p className="mx-auto mt-[26px] max-w-[42ch] text-center">
+                <hr className="hairline" />
+
+                <p className="mx-auto mb-[29px] max-w-[34ch] text-center">
                   Join the waiting list. We will let you know as soon as we are
                   live, Places are limited and dates are offered in the order
                   people join.
                 </p>
-
-                <hr className="hairline !my-[24px]" />
               </>
             }
           />

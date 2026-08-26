@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { isPastMonth } from "@/lib/due-month";
 import { E164_PATTERN, nationalDigits, toE164 } from "@/lib/phone";
+import { normalisePostcodeOutward } from "@/lib/postcode";
 import { DIAL_CODES, PARITY_OPTIONS, type Parity } from "@/lib/waitlist-options";
 
 // Keyed on the form's `name` attributes, not on the output keys, so an error
@@ -13,6 +14,7 @@ export const WAITLIST_FIELDS = [
   "email",
   "dial_code",
   "phone_national",
+  "postcode_outward",
   "due_month",
   "parity",
   "consent",
@@ -66,6 +68,18 @@ const waitlistFormSchema = z
         { error: "Enter a valid phone number" },
       ),
 
+    // Normalised before it is judged, so "sw7 2az" and "SW7" are the same
+    // answer. The transform returns "" rather than null for a value that is not
+    // a postcode, which keeps the output type a plain string for the sheet.
+    postcode_outward: z
+      .string()
+      .trim()
+      .min(1, { error: "Enter your area" })
+      .transform((value) => normalisePostcodeOutward(value) ?? "")
+      .refine((value) => value.length > 0, {
+        error: "Enter a UK postcode area, for example SW7",
+      }),
+
     // Empty and malformed share a message because the picker is the only thing
     // that writes this field, so a malformed value means the markup is broken,
     // not the visitor.
@@ -116,6 +130,7 @@ export const waitlistSignupSchema = waitlistFormSchema.transform((values) => ({
   last_name: values.last_name,
   email: values.email,
   phone: toE164(values.dial_code, values.phone_national),
+  postcode_outward: values.postcode_outward,
   due_month: values.due_month,
   parity: values.parity,
   consent: values.consent,
