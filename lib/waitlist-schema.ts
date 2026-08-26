@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isPastMonth } from "@/lib/due-month";
+import { dueMonthYearBounds, isPastMonth } from "@/lib/due-month";
 import { E164_PATTERN, nationalDigits, toE164 } from "@/lib/phone";
 import { normalisePostcodeOutward } from "@/lib/postcode";
 import { DIAL_CODES, PARITY_OPTIONS, type Parity } from "@/lib/waitlist-options";
@@ -92,6 +92,17 @@ const waitlistFormSchema = z
           return !isPastMonth(year, month - 1, new Date());
         },
         { error: "Choose a due date that is not in the past" },
+      )
+      // The picker cannot offer a year past this, so only a tampered post gets
+      // here. One year of slack over the stepper's own ceiling, because the
+      // server reads its own clock and a New Year timezone skew must not reject
+      // a month the visitor was legitimately shown.
+      .refine(
+        (value) => {
+          const year = Number(value.slice(0, 4));
+          return year <= dueMonthYearBounds(new Date()).maxYear + 1;
+        },
+        { error: "Choose a due date closer to now" },
       ),
 
     // Number("") is 0, so an unanswered group fails here rather than needing a

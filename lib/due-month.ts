@@ -54,12 +54,16 @@ export function isPastMonth(
   return year < thisYear || (year === thisYear && monthIndex < today.getMonth());
 }
 
-// A pregnancy is at most about nine months out, so the stepper stays tight
-// rather than letting the visitor wander into 2043.
+// A pregnancy runs about nine months, so one year ahead covers anyone already
+// expecting. Two is deliberate slack for someone planning rather than pregnant:
+// the client would rather take an early signup than show her a dead end. It
+// still stops the stepper wandering into 2043.
+const MAX_YEARS_AHEAD = 2;
+
 export function dueMonthYearBounds(today: Date): {
   minYear: number;
   maxYear: number;
 } {
   const minYear = today.getFullYear();
-  return { minYear, maxYear: minYear + 1 };
+  return { minYear, maxYear: minYear + MAX_YEARS_AHEAD };
 }
