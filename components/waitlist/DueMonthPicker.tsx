@@ -156,11 +156,10 @@ export function DueMonthPicker({
         {...invalidProps("due_month", errors)}
         onClick={() => (calendar ? close({ restoreFocus: false }) : open())}
       >
-        {/* Placeholder colour but upright, not italic: a button has no
-            placeholder to inherit the italic ::placeholder rule, and the mockup
-            renders this slot roman while the real placeholders beside it are
-            italic. MM / YYYY rather than the mockup's DD / MM / YYYY, because a
-            due date is an estimate and the schema stores a month. */}
+        {/* A button has no ::placeholder to inherit, so the empty state borrows
+            the placeholder tone by class instead. MM / YYYY rather than the
+            mockup's DD / MM / YYYY, because a due date is an estimate and the
+            schema stores a month. */}
         <span className={selected ? "text-ink" : "text-placeholder"}>
           {selected
             ? formatDueMonth(selected.year, selected.monthIndex)

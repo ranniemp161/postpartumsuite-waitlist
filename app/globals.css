@@ -212,9 +212,12 @@
     display: none;
   }
 
+  /* Roman, not italic. Tone alone carries the difference between a suggestion
+     and a typed answer: #858585 against the near-black ink is 3.5:1 versus
+     21:1, which reads at a glance without a second axis of styling.
+     opacity:1 because Firefox dims placeholders by default. */
   .well::placeholder {
     color: var(--color-placeholder);
-    font-style: italic;
     opacity: 1;
   }
 }
