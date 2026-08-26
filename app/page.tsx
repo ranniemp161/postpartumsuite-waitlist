@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
-import logo from "@/public/logo.png";
+import logo from "@/public/logo.webp";
 
 export default function Home() {
   return (
@@ -22,7 +22,7 @@ export default function Home() {
           <h1 className="mt-[15px] text-center">The Postpartum Suite</h1>
 
           <p className="tagline">
-            &quot;Because Mum Needs Looking After Too&quot;
+            &quot;Because Mum&apos;s Need Looking After Too&quot;
           </p>
 
           {/* Passed in rather than placed here, so it leaves with the form when

@@ -43,7 +43,6 @@
      the masthead above it. */
   --w-column: 520px;
 
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7' fill='none' stroke='%23111111' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.2 1.4 5.5 5.6 9.8 1.4'/%3E%3C/svg%3E");
 }
 
 @layer base {
@@ -94,9 +93,12 @@
     text-wrap: balance;
   }
 
+  /* 116px, not 112px. The mark sits in a 500px square with more margin around
+     it than the old file had, so matching widths would have shrunk the circle
+     by about 4%. This keeps the circle the size the masthead was tuned to. */
   .site-logo {
     display: block;
-    width: 112px;
+    width: 116px;
     height: auto;
   }
 
@@ -262,17 +264,20 @@
     min-width: 0;
   }
 
-  /* appearance:none takes the native arrow with it, and a control that opens a
-     menu has to look like one, so the chevron is drawn back in the ink colour
-     rather than the UA's. */
-  select.well {
-    padding-right: 30px;
-    appearance: none;
-    cursor: pointer;
-    background-image: var(--chevron);
-    background-size: 11px auto;
-    background-position: right 11px center;
-    background-repeat: no-repeat;
+  /* Shares the field's box so the row reads as one control, but it is a
+     statement rather than an input: no focus ring, no hover, not in the tab
+     order. */
+  .phone-prefix {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-family: var(--font-body);
+    font-size: 17.5px;
+    color: var(--color-ink);
+    background-color: var(--color-sheet);
   }
 }
 

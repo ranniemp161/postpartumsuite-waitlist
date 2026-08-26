@@ -1,9 +1,13 @@
 import { z } from "zod";
 
 import { isPastMonth } from "@/lib/due-month";
-import { E164_PATTERN, nationalDigits, toE164 } from "@/lib/phone";
+import { isValidUkNsn, nationalDigits, toE164 } from "@/lib/phone";
 import { normalisePostcodeOutward } from "@/lib/postcode";
-import { DIAL_CODES, PARITY_OPTIONS, type Parity } from "@/lib/waitlist-options";
+import {
+  PARITY_OPTIONS,
+  UK_DIAL_CODE,
+  type Parity,
+} from "@/lib/waitlist-options";
 
 // Keyed on the form's `name` attributes, not on the output keys, so an error
 // can point at the control the visitor can actually see: `phone_national`
@@ -47,10 +51,9 @@ const waitlistFormSchema = z
       .min(1, { error: "Enter your email address" })
       .pipe(z.email({ error: "Enter a valid email address" })),
 
-    dial_code: z.string().refine(
-      (value) => DIAL_CODES.some((dial) => dial.code === value),
-      { error: "Choose a dial code" },
-    ),
+    // Posted by a hidden input, so a value other than +44 means the form was
+    // tampered with rather than a country being chosen.
+    dial_code: z.literal(UK_DIAL_CODE, { error: "Choose a dial code" }),
 
     // Zod skips an object-level check while any field is still failing, so a
     // number the visitor can see is wrong is judged here rather than only in
@@ -60,13 +63,9 @@ const waitlistFormSchema = z
       .string()
       .trim()
       .min(1, { error: "Enter your phone number" })
-      .refine(
-        (value) => {
-          const digits = nationalDigits(value);
-          return digits.length >= 7 && digits.length <= 14;
-        },
-        { error: "Enter a valid phone number" },
-      ),
+      .refine((value) => isValidUkNsn(nationalDigits(value, "44")), {
+        error: "Enter a UK phone number, for example 07700 900123",
+      }),
 
     // Normalised before it is judged, so "sw7 2az" and "SW7" are the same
     // answer. The transform returns "" rather than null for a value that is not
@@ -111,16 +110,6 @@ const waitlistFormSchema = z
         error: "You need to accept the privacy policy to join",
       })
       .transform(() => true as const),
-  })
-  .superRefine((values, ctx) => {
-    if (E164_PATTERN.test(toE164(values.dial_code, values.phone_national))) {
-      return;
-    }
-    ctx.addIssue({
-      code: "custom",
-      path: ["phone_national"],
-      message: "Enter a valid phone number",
-    });
   });
 
 // The sheet's contract. Feature 5 appends exactly these values; `created_at`

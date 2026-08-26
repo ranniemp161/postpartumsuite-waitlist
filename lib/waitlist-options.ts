@@ -10,12 +10,10 @@ export const PARITY_OPTIONS = [
   { value: 3, label: "Third or more" },
 ] as const;
 
-export const DIAL_CODES = [
-  { code: "+44", label: "UK +44" },
-  { code: "+353", label: "IE +353" },
-] as const;
-
-export const DEFAULT_DIAL_CODE = "+44";
+// One country. The form renders this as a fixed prefix rather than a menu,
+// because a select holding a single option is a control that cannot do
+// anything. Adding a second country means restoring that select too.
+export const UK_DIAL_CODE = "+44";
 
 // The recorded value, narrowed. Feature 4's schema and feature 5's sheet writer
 // both depend on this staying 1 to 3.

@@ -18,8 +18,7 @@ import {
   invalidProps,
 } from "@/components/waitlist/FieldError";
 import {
-  DEFAULT_DIAL_CODE,
-  DIAL_CODES,
+  UK_DIAL_CODE,
   PARITY_OPTIONS,
 } from "@/lib/waitlist-options";
 import {
@@ -168,32 +167,26 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
           </label>
 
           <div className="phone-row">
-            <select
-              className="well"
-              id="dial_code"
-              name="dial_code"
-              defaultValue={DEFAULT_DIAL_CODE}
-              aria-label="Dial code"
-              {...invalidProps("dial_code", errors)}
-            >
-              {DIAL_CODES.map(({ code, label }) => (
-                <option key={code} value={code}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            {/* Not a control. With one country there is nothing to choose, so
+                the prefix is stated and the value rides on a hidden input.
+                aria-hidden because the label already says "Phone number" and
+                the prefix is not part of the answer she gives. */}
+            <span className="phone-prefix" aria-hidden="true">
+              UK +44
+            </span>
+            <input type="hidden" name="dial_code" value={UK_DIAL_CODE} />
 
             <input
               className="well"
               type="tel"
               id="phone_national"
               name="phone_national"
-              placeholder="7700 900123"
+              placeholder="07700 900123"
               {...invalidProps("phone_national", errors)}
             />
           </div>
 
-          {/* The select is constrained, so its slot only ever fills if the posted
+          {/* The dial code is fixed, so its slot only ever fills if the posted
               value was tampered with. Rendering it anyway is what stops that
               becoming a button that silently does nothing. */}
           <FieldError field="dial_code" errors={errors} />
