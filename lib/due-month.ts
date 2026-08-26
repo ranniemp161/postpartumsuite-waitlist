@@ -54,16 +54,11 @@ export function isPastMonth(
   return year < thisYear || (year === thisYear && monthIndex < today.getMonth());
 }
 
-// A pregnancy runs about nine months, so one year ahead covers anyone already
-// expecting. Two is deliberate slack for someone planning rather than pregnant:
-// the client would rather take an early signup than show her a dead end. It
-// still stops the stepper wandering into 2043.
-const MAX_YEARS_AHEAD = 2;
-
-export function dueMonthYearBounds(today: Date): {
-  minYear: number;
-  maxYear: number;
-} {
-  const minYear = today.getFullYear();
-  return { minYear, maxYear: minYear + MAX_YEARS_AHEAD };
+// The only bound is backwards. A forward ceiling was tried at one year and then
+// two, and both read as the picker being broken rather than considerate: any
+// finite limit is a wall somebody eventually hits. The client's call, on the
+// grounds that a visitor who cannot enter her date does not sign up at all,
+// where an odd far-future month is one row somebody can see and correct.
+export function earliestDueYear(today: Date): number {
+  return today.getFullYear();
 }

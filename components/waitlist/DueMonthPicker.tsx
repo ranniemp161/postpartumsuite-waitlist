@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { FieldError, invalidProps } from "@/components/waitlist/FieldError";
 import {
   MONTH_LABELS,
-  dueMonthYearBounds,
+  earliestDueYear,
   formatDueMonth,
   isPastMonth,
   toDueMonth,
@@ -218,8 +218,10 @@ export function DueMonthPicker({
   );
 }
 
-/* The out-of-range control is disabled rather than removed, so the row keeps
-   its width and the year label stays centred at either end of the range. */
+/* Only the back arrow can be out of range, and it is disabled rather than
+   removed so the row keeps its width and the year label stays centred. There is
+   no forward limit: the grid disables past months on its own, so nothing the
+   stepper reaches can produce an invalid pick. */
 function YearStepper({
   calendar,
   onStep,
@@ -227,7 +229,7 @@ function YearStepper({
   calendar: Calendar;
   onStep: (delta: number) => void;
 }) {
-  const { minYear, maxYear } = dueMonthYearBounds(calendar.today);
+  const minYear = earliestDueYear(calendar.today);
 
   return (
     <div className="cal-head">
@@ -247,7 +249,6 @@ function YearStepper({
         type="button"
         className="cal-step"
         aria-label="Next year"
-        disabled={calendar.viewYear >= maxYear}
         onClick={() => onStep(1)}
       >
         <CalArrow direction="right" />
