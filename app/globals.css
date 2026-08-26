@@ -577,6 +577,14 @@
     outline: none;
     box-shadow: var(--ring);
   }
+
+  /* Opts out of the double-tap-to-zoom gesture, so WebKit fires click without
+     waiting to see whether a second tap is coming. These are small targets that
+     get tapped repeatedly, which is where that wait is felt. */
+  .cal-step,
+  .cal-month {
+    touch-action: manipulation;
+  }
 }
 
 @layer components {

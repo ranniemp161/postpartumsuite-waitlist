@@ -43,7 +43,9 @@ export function DueMonthPicker({
   useEffect(() => {
     if (!calendar || !focusOnOpen.current) return;
     focusOnOpen.current = false;
-    monthButtons(gridRef.current)[calendar.activeIndex]?.focus();
+    monthButtons(gridRef.current)[calendar.activeIndex]?.focus({
+      preventScroll: true,
+    });
   }, [calendar]);
 
   function open() {
@@ -60,7 +62,7 @@ export function DueMonthPicker({
 
   function close({ restoreFocus }: { restoreFocus: boolean }) {
     setCalendar(null);
-    if (restoreFocus) triggerRef.current?.focus();
+    if (restoreFocus) triggerRef.current?.focus({ preventScroll: true });
   }
 
   function stepYear(delta: number) {
@@ -95,7 +97,7 @@ export function DueMonthPicker({
 
     event.preventDefault();
     setCalendar({ ...calendar, activeIndex: target });
-    buttons[target]?.focus();
+    buttons[target]?.focus({ preventScroll: true });
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
@@ -108,7 +110,17 @@ export function DueMonthPicker({
   // fields below it.
   function onBlur(event: React.FocusEvent<HTMLDivElement>) {
     if (!calendar) return;
-    if (event.currentTarget.contains(event.relatedTarget)) return;
+
+    // WebKit does not focus a <button> when it is tapped, so on iOS every tap
+    // inside the panel blurs the grid with relatedTarget null. Reading that as
+    // "focus left the field" closed the popover before the arrow's click could
+    // fire, which is why the year appeared not to advance on iPhone while
+    // working on Android. Focus going nowhere is not a reason to close: a real
+    // tap outside is already handled by the pointerdown listener below.
+    const next = event.relatedTarget;
+    if (!next) return;
+
+    if (event.currentTarget.contains(next)) return;
     close({ restoreFocus: false });
   }
 
