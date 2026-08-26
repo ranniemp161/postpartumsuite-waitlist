@@ -34,7 +34,7 @@ export default function Home() {
 
                 <p className="intro-copy">
                   Join the waiting list. We will let you know as soon as we are
-                  live, Places are limited and dates are offered in the order
+                  live. Places are limited and dates are offered in the order
                   people join.
                 </p>
               </>
