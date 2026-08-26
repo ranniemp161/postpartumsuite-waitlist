@@ -42,7 +42,6 @@
      content width; holding that ratio is what stops the form reading wider than
      the masthead above it. */
   --w-column: 520px;
-
 }
 
 @layer base {
@@ -86,13 +85,14 @@
      between the two sentences is a <br>, not wrapping, so the call to action
      gets its own line whatever the width.
 
-     18px rather than 19 is what keeps the second sentence on one line: at 66
-     characters it needs about 500px, and the column gives 520. Deliberately not
-     text-wrap:balance, which shortens the longest line to match the others and
-     would pull the copy back into a narrow block in the middle of the column. */
+     Deliberately not text-wrap:balance, which shortens the longest line to
+     match the others and would pull the copy back into a narrow block in the
+     middle of the column. The second sentence runs 73 characters and so wraps
+     on its own: at any size worth reading it needs more room than the column
+     has, and the rag is the price of it filling the width. */
   .intro-copy {
     margin: 0 auto clamp(22px, 3.4vw, 29px);
-    font-size: clamp(16px, 2.1vw, 18px);
+    font-size: clamp(17px, 2.2vw, 19px);
     line-height: 1.45;
     text-align: center;
   }

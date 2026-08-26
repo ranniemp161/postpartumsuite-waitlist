@@ -31,8 +31,8 @@ export default function Home() {
                 <p className="intro-copy">
                   <strong>Join the waiting list.</strong>
                   <br />
-                  Places are limited and dates are offered in the order people
-                  join.
+                  Places are limited and offered in the order the waiting list
+                  is received.
                 </p>
               </>
             }
