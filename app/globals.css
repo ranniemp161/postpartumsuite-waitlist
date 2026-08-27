@@ -317,8 +317,8 @@
 
 @layer components {
   /* A fieldset carries a border, padding, margins and a min-inline-size of
-     min-content by default, and a legend carries side padding. All of it has to
-     go or the group will not line up with the fields above. */
+     min-content by default. All of it has to go or the group will not line up
+     with the fields above. */
   .parity-set {
     border: 0;
     margin: 0;
@@ -326,17 +326,12 @@
     min-inline-size: 0;
   }
 
-  .parity-set > legend {
-    padding: 0;
-  }
-
-  /* The legend is not a flex child of .field, so the label rhythm is a margin
-     here rather than a gap. */
+  /* The legend is visually hidden, so the list carries no label offset and
+     leans on the form gap for its separation from the field above. */
   .parity-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 11px;
   }
 
   /* The row is the label, so the text and the whitespace beside it are part of

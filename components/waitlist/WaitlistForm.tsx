@@ -253,7 +253,10 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
           className="parity-set"
           {...describedByProps("parity", errors)}
         >
-          <legend className="field-label">Which baby are you expecting?</legend>
+          {/* Hidden by request: the client wanted the question gone, but a
+              radio group still needs a name, so the legend stays for assistive
+              tech only. */}
+          <legend className="sr-only">Which baby are you expecting?</legend>
 
           <div className="parity-list">
             {PARITY_OPTIONS.map(({ value, label }) => (
