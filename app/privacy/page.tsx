@@ -12,7 +12,8 @@ export const metadata: Metadata = {
 
 // TODO: this is a factual account of what the code actually does, written so
 // the page is not empty at launch. It has not been reviewed by anyone
-// qualified, and the retention period below is still undecided.
+// qualified. The retention period is now decided and stated below, but the
+// deletion itself is a manual pass over the sheet, not an automated job.
 export default function PrivacyPolicy() {
   return (
     <>
@@ -88,9 +89,15 @@ export default function PrivacyPolicy() {
 
           <h2>How long we keep it</h2>
           <p>
-            Until we have opened in your area and been in touch, or until you
-            ask us to remove you, whichever comes first. If you ask, we delete
-            your row.
+            Eighteen months after the due date month you gave us, or sooner if
+            you ask us to remove you. We tie it to your due month rather than
+            the day you signed up because that is what the information is for:
+            once your baby is well past newborn, we no longer have a reason to
+            hold it.
+          </p>
+          <p>
+            If you ask us to delete your details before then, we delete your
+            row when you ask.
           </p>
 
           <h2>Your rights</h2>

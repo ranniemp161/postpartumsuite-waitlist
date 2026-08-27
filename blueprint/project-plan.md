@@ -62,7 +62,9 @@ is no per-user authorisation model to design.
 | `due_month` | string | required, `YYYY-MM`, past months rejected |
 | `parity` | integer | required, 1 to 3, where 3 means "third or more" |
 | `consent` | boolean + timestamp | required, must be true to submit |
-| `created_at` | timestamp | server-generated, UTC |
+| `created_at` | timestamp | server-generated, written as a real Sheets datetime displayed `DD-MM-YYYY HH:mm` against a UK clock |
+| `postcode_outward` | string | required, outward code only, for example `SW7`. Column J, headed `location` in the sheet |
+| `signup_id` | string | server-generated uuid, the only stable identity a row has. Column K |
 
 **Storage: a Google Sheet, explicitly temporary.** Rows are appended through the
 Sheets API using a service account. This is a deliberate trade: it gets a working
@@ -78,7 +80,9 @@ Consequences carried into the build:
 
 - Consent is required, explicit, and timestamped, never pre-ticked
 - The sheet stays restricted to team members who need it
-- A retention period must be decided before launch (TODO)
+- Signups are deleted eighteen months after the recorded due month, or sooner on
+  request. Tied to the due month rather than the signup date because that is what
+  the data is for. The sweep is manual; nothing deletes on a schedule
 - Deletion requests are handled by hand while on Sheets, which is workable only
   at small scale and is the main reason to migrate
 - Fonts are self-hosted rather than fetched from Google's CDN, avoiding a
@@ -209,8 +213,22 @@ explicit step; `/release vercel` prepares config but never deploys on its own.
 **Open TODOs:**
 
 - Privacy policy wording, which needs a human author, not generated text
-- Retention period for signup data
 - What "your area" means operationally, since the headline copy promises it
-- Whether duplicate emails should be rejected, merged, or allowed
 - Domain name
-- Migration target and trigger point for moving off Google Sheets
+
+**Decided, kept here because later work depends on the reasoning:**
+
+- **Timestamps** are written as real Sheets datetimes, not text, and displayed
+  `DD-MM-YYYY HH:mm` against `Europe/London`. Text in `DD-MM-YYYY` would sort by
+  day of month, so every sort and filter built on the sheet would be quietly
+  wrong. Rows written before this change remain ISO text.
+- **Duplicate emails are allowed**, and deduplicated on read rather than
+  rejected on write. `saveSignup()` has no retry queue, so a failed write sends
+  the visitor back to resubmit; rejecting duplicates would refuse that second
+  attempt on the strength of a first that never landed. Rejecting would also
+  tell an anonymous visitor whether an email is already on a list that reveals
+  pregnancy.
+- **Retention** is due month plus eighteen months, stated on `/privacy`.
+- **Migration off Sheets** is triggered by need, not row count: the first time a
+  signup needs per-signup state (contacted, offered, declined). That is when a
+  spreadsheet stops being a record and becomes a workflow tool.

@@ -1,9 +1,15 @@
 import "server-only";
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { JWT } from "google-auth-library";
 
+import {
+  DATE_TIME_PATTERN,
+  isSheetDateTime,
+  toSheetDateTime,
+  type SheetDateTime,
+} from "@/lib/sheet-datetime";
 import type { WaitlistSignupInput } from "@/lib/waitlist-schema";
 
 const SHEET_TAB = "Signups";
@@ -16,16 +22,20 @@ const API_ROOT = "https://sheets.googleapis.com/v4/spreadsheets";
 // submit open indefinitely.
 const REQUEST_TIMEOUT_MS = 10_000;
 
-// The ten cells of one signup, in the order the sheet's columns are fixed in.
+// The eleven cells of one signup, in the order the sheet's columns are fixed in.
 // Positional, so a reordered sheet corrupts every later row: see the Data
 // contract in project-overview.md before touching this.
 //
-// postcode_outward is appended last rather than sitting beside due_month where
-// it belongs logically. Rows already in the sheet are fixed text; inserting a
-// column mid-row would leave every earlier signup's values reading against the
-// wrong headers. Column J needs its header cell added by hand.
+// postcode_outward and signup_id are appended rather than sitting where they
+// belong logically. Rows already in the sheet are fixed text; inserting a column
+// mid-row would leave every earlier signup's values reading against the wrong
+// headers. Columns J and K need their header cells added by hand.
+//
+// A random uuid rather than a time-sortable id: created_at already orders the
+// sheet, so sortability would buy nothing and cost a hand-rolled encoder. Its
+// job is to survive a row moving, which row position cannot.
 export type SheetRow = [
-  created_at: string,
+  created_at: SheetDateTime,
   first_name: string,
   last_name: string,
   email: string,
@@ -33,8 +43,9 @@ export type SheetRow = [
   due_month: string,
   parity: number,
   consent: boolean,
-  consent_at: string,
+  consent_at: SheetDateTime,
   postcode_outward: string,
+  signup_id: string,
 ];
 
 export class SheetsConfigError extends Error {
@@ -48,7 +59,7 @@ export class SheetsWriteError extends Error {
 export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
   // One timestamp for both columns: consent is given at submit, so there is no
   // earlier moment to record.
-  const at = now.toISOString();
+  const at = toSheetDateTime(now);
 
   return [
     at,
@@ -61,6 +72,7 @@ export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
     input.consent,
     at,
     input.postcode_outward,
+    randomUUID(),
   ];
 }
 
@@ -95,6 +107,14 @@ type SheetsConfig = ReturnType<typeof readConfig>;
 type CellValue = SheetRow[number];
 
 function toCellData(value: CellValue) {
+  if (isSheetDateTime(value)) {
+    return {
+      userEnteredValue: { numberValue: value.serial },
+      userEnteredFormat: {
+        numberFormat: { type: "DATE_TIME", pattern: DATE_TIME_PATTERN },
+      },
+    };
+  }
   if (typeof value === "number") return { userEnteredValue: { numberValue: value } };
   if (typeof value === "boolean") return { userEnteredValue: { boolValue: value } };
   return { userEnteredValue: { stringValue: value } };
@@ -205,7 +225,10 @@ async function appendRow(
           appendCells: {
             sheetId,
             rows: [{ values: row.map(toCellData) }],
-            fields: "userEnteredValue",
+            // Scoped to numberFormat rather than the whole of userEnteredFormat:
+            // a broader mask would reset every other formatting property on the
+            // cells it writes.
+            fields: "userEnteredValue,userEnteredFormat.numberFormat",
           },
         },
       ],
@@ -248,6 +271,7 @@ export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
       "WAITLIST_SIGNUP_UNSAVED",
       JSON.stringify({
         reason: error instanceof Error ? error.message : String(error),
+        signup_id: row[10],
         email_handle: emailHandle(input.email),
         due_month: input.due_month,
         postcode_outward: input.postcode_outward,

@@ -61,7 +61,8 @@ the schema** and later features depend on it.
 
 ### WaitlistSignup (one sheet row)
 
-- `created_at` (ISO 8601 string, UTC) - server-generated at submit
+- `created_at` (Sheets datetime) - server-generated at submit, displayed
+  `DD-MM-YYYY HH:mm` against a UK clock
 - `first_name` (string, required)
 - `last_name` (string, required)
 - `email` (string, required) - validated, stored lowercased
@@ -69,13 +70,37 @@ the schema** and later features depend on it.
 - `due_month` (string, required) - `YYYY-MM`, past months rejected
 - `parity` (integer, required) - 1 to 3, where 3 means "third or more"
 - `consent` (boolean, required) - must be true to submit
-- `consent_at` (ISO 8601 string) - when consent was given
+- `consent_at` (Sheets datetime) - when consent was given, same format
 - `postcode_outward` (string, required) - the outward code only, for example
-  `SW7`. Column J
+  `SW7`. Column J, whose header cell in the sheet reads `location`
+- `signup_id` (string, required) - server-generated uuid, the only stable
+  identity a row has. Column K
 
 > **Locked shapes.** `due_month` is `YYYY-MM`, never a full date. `parity` is an
 > integer 1 to 3, never a label string. `phone` is always E.164.
 > `postcode_outward` is the outward code only, never a full postcode.
+
+> **Timestamps are datetimes, never formatted strings.** `created_at` and
+> `consent_at` are written as real Sheets datetimes (a serial number plus a
+> `dd-mm-yyyy hh:mm` number format), rendered against `Europe/London`. Writing
+> the display text directly would sort the column by day of month, so every
+> sort, filter and chart built on the sheet would be quietly wrong. Rows written
+> before this change remain ISO text, so both columns hold a mix.
+
+> **Duplicate emails are allowed** and deduplicated on read, never rejected on
+> write. `saveSignup()` has no retry queue, so a failed write sends the visitor
+> back to resubmit; rejecting would refuse that second attempt on the strength
+> of a first that never landed, and would tell an anonymous visitor whether an
+> email is already on a list that reveals pregnancy.
+
+> **The sheet's column J header reads `location`, not `postcode_outward`.**
+> Deliberate: the code is positional so the header is only ever read by the
+> team, and `location` is the wording the client used. Do not "correct" it to
+> match the field name.
+
+> **Retention** is the recorded due month plus eighteen months, or sooner on
+> request, stated on `/privacy`. The sweep is manual; nothing deletes on a
+> schedule.
 
 > **`postcode_outward` sits last on purpose.** It belongs beside `due_month`
 > logically, but rows written before it existed are fixed text in the sheet, and
@@ -229,11 +254,10 @@ Gaps and mismatches carried from the plans. Resolve in the plans, then re-run
   "Your Location (first part of your poste code)"; the build uses "Your area"
   with the explanation as a hint line, because a parenthetical that long in
   letterspaced caps runs very wide. Confirm which she wants.
-- **Signup records have no stable identifier.** Row position is the only identity,
-  which makes a GDPR deletion request manual and error-prone. Decide whether to
-  add an id before the list grows.
 - **Privacy policy wording** needs a human author, not generated text. The page
   is a factual account of what the code does, not reviewed by anyone qualified.
-- **Retention period** for signup data is undecided.
-- **Duplicate emails**: reject, merge, or allow is undecided.
-- **Migration trigger** for moving off Google Sheets is undefined.
+- **Retention is stated but not enforced.** `/privacy` promises deletion at due
+  month plus eighteen months, and nothing deletes on a schedule. Either someone
+  runs the sweep or the page makes a promise the system does not keep.
+- **Migration off Sheets** is triggered by need, not row count: the first time a
+  signup needs per-signup state (contacted, offered, declined).
