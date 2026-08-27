@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { joinWaitlist } from "@/actions/waitlist";
+import { impossibleTld, suggestEmail } from "@/lib/email-typo";
 import { ConfirmationPanel } from "@/components/waitlist/ConfirmationPanel";
 import { DueMonthPicker } from "@/components/waitlist/DueMonthPicker";
 import {
@@ -32,6 +33,7 @@ import type { WaitlistFormState } from "@/types/waitlist";
 
 const INITIAL_STATE: WaitlistFormState = { status: "idle" };
 const POSTCODE_HINT_ID = "postcode_outward_hint";
+const EMAIL_SUGGESTION_ID = "email_suggestion";
 const NO_ERRORS: WaitlistFieldErrors = {};
 
 export function WaitlistForm({ intro }: { intro?: ReactNode }) {
@@ -45,6 +47,12 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
     answer: WaitlistFormState;
     errors: WaitlistFieldErrors;
   } | null>(null);
+
+  // A near-miss on a known provider, offered rather than enforced. An
+  // impossible ending like .con is the schema's business and blocks the submit;
+  // this one cannot, because gmial.com and ski.com are both things a real
+  // address could legitimately be, and refusing either loses a signup.
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
   const serverErrors =
     state.status === "invalid" ? state.fieldErrors : NO_ERRORS;
@@ -70,8 +78,33 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
   }
 
   function onFieldEdit(event: React.SyntheticEvent<HTMLFormElement>) {
-    const { name } = event.target as HTMLInputElement;
-    if (isWaitlistField(name)) revalidate(name);
+    const target = event.target as HTMLInputElement;
+    if (target.name === "email") setEmailSuggestion(null);
+    if (isWaitlistField(target.name)) revalidate(target.name);
+  }
+
+  // On blur only. Asking "did you mean gmail.com?" while she is still on the
+  // "g" is noise, and the schema's own check has the same shape, so a half-typed
+  // address would trip it on almost every keystroke.
+  function onFieldBlur(event: React.SyntheticEvent<HTMLFormElement>) {
+    onFieldEdit(event);
+
+    const target = event.target as HTMLInputElement;
+    if (target.name !== "email") return;
+
+    const value = target.value.trim();
+    setEmailSuggestion(
+      impossibleTld(value) === null ? suggestEmail(value) : null,
+    );
+  }
+
+  function acceptEmailSuggestion(suggestion: string) {
+    const field = formRef.current?.elements.namedItem("email");
+    if (!(field instanceof HTMLInputElement)) return;
+
+    field.value = suggestion;
+    setEmailSuggestion(null);
+    revalidate("email", suggestion);
   }
 
   // React owns the reset of any form it drives through the action prop, and it
@@ -102,7 +135,7 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
         onSubmit={onSubmit}
         className="form-stack"
         onChange={onFieldEdit}
-        onBlur={onFieldEdit}
+        onBlur={onFieldBlur}
       >
         {/* Off-screen rather than sr-only: sr-only keeps a control in the
             accessibility tree, and a screen reader announcing a stray "website"
@@ -168,9 +201,30 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
             id="email"
             name="email"
             placeholder="you@example.com"
-            {...invalidProps("email", errors)}
+            {...invalidProps(
+              "email",
+              errors,
+              emailSuggestion ? EMAIL_SUGGESTION_ID : undefined,
+            )}
           />
           <FieldError field="email" errors={errors} />
+
+          {/* A button, not a link or a plain line of text: accepting the
+              correction is the whole point, and a tired thumb should not have to
+              retype the address to take it. */}
+          {emailSuggestion && !errors.email && (
+            <p className="field-hint" id={EMAIL_SUGGESTION_ID} aria-live="polite">
+              Did you mean{" "}
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => acceptEmailSuggestion(emailSuggestion)}
+              >
+                {emailSuggestion}
+              </button>
+              ?
+            </p>
+          )}
         </div>
 
         {/* Two controls under one label, so .field is a div here and the label is

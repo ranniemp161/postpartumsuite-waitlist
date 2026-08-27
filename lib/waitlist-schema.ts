@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { isPastMonth } from "@/lib/due-month";
+import { impossibleTld, suggestEmail } from "@/lib/email-typo";
 import { isValidUkNsn, nationalDigits, toE164 } from "@/lib/phone";
 import { normalisePostcodeOutward } from "@/lib/postcode";
 import {
@@ -31,12 +32,22 @@ const PARITY_VALUES: readonly number[] = PARITY_OPTIONS.map(
   (option) => option.value,
 );
 
+// Collapsed before it is measured, so "  Anna   Marie " is judged as the eleven
+// characters the team will read in the sheet rather than the fifteen that were
+// typed. A single character is treated as a slip: initials are real, but a
+// list this list's owner has to phone from needs a name she can use.
 function requiredName(label: string) {
   return z
     .string()
     .trim()
-    .min(1, { error: `Enter your ${label}` })
-    .max(60, { error: `Your ${label} is too long` });
+    .transform((value) => value.replace(/\s+/g, " "))
+    .pipe(
+      z
+        .string()
+        .min(1, { error: `Enter your ${label}` })
+        .min(2, { error: `Enter your full ${label}` })
+        .max(60, { error: `Your ${label} is too long` }),
+    );
 }
 
 const waitlistFormSchema = z
@@ -44,12 +55,30 @@ const waitlistFormSchema = z
     first_name: requiredName("first name"),
     last_name: requiredName("last name"),
 
+    // A well-formed address is not a reachable one, and this is the only field
+    // we have no second route to: get it wrong and the signup is lost silently,
+    // because the confirmation panel thanks her either way. Spaces are stripped
+    // rather than rejected, since they only ever arrive from a paste.
     email: z
       .string()
       .trim()
       .toLowerCase()
-      .min(1, { error: "Enter your email address" })
-      .pipe(z.email({ error: "Enter a valid email address" })),
+      .transform((value) => value.replace(/\s+/g, ""))
+      .pipe(
+        z
+          .string()
+          .min(1, { error: "Enter your email address" })
+          .pipe(z.email({ error: "Enter a valid email address" })),
+      )
+      .refine((value) => impossibleTld(value) === null, {
+        error: (issue) => {
+          const value = String(issue.input);
+          const suggestion = suggestEmail(value);
+          return suggestion
+            ? `Did you mean ${suggestion}?`
+            : `Check your email address: ".${impossibleTld(value)}" is not a real domain ending`;
+        },
+      }),
 
     // Posted by a hidden input, so a value other than +44 means the form was
     // tampered with rather than a country being chosen.

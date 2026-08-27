@@ -272,6 +272,21 @@
     display: none;
   }
 
+  /* Sized and coloured like the error it sits beside, not like a link in body
+     copy: this is a correction offered about the field above, so it reads as
+     part of the field rather than as navigation away from it. */
+  .link-button {
+    font: inherit;
+    color: var(--color-ink);
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+  }
+
   /* Roman, not italic. Tone alone carries the difference between a suggestion
      and a typed answer: #858585 against the near-black ink is 3.5:1 versus
      21:1, which reads at a glance without a second axis of styling.
@@ -721,7 +736,8 @@
      a wrapped link is ringed as one shape and the page keeps one focus look. */
   .consent-row a:focus-visible,
   .site-footer a:focus-visible,
-  .policy a:focus-visible {
+  .policy a:focus-visible,
+  .link-button:focus-visible {
     outline: none;
     border-radius: 2px;
     box-shadow: var(--ring);
