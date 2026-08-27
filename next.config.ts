@@ -11,11 +11,18 @@ const isDev = process.env.NODE_ENV === "development";
 // have. frame-ancestors is the directive actually doing the security work here
 // and is unaffected by that compromise.
 //
-// Turbopack's dev client evaluates generated code and talks to an HMR
-// websocket, neither of which a production build does.
+// 'unsafe-eval' is required in production too, and not by anything in this
+// repo: Vercel's Bot Protection injects a client script under a randomised
+// path that evals. Take it out and nothing visibly breaks. The build passes,
+// the page renders, the form submits, and Bot Protection quietly stops running
+// its checks, so real visitors get re-challenged and a tidy-up looks like a
+// win. It costs almost nothing to keep, because a script-src that already
+// allows arbitrary inline script gives essentially no XSS protection to lose.
+//
+// The HMR websocket on connect-src really is dev-only.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
