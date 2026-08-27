@@ -343,7 +343,7 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
             />
             <span>
               <label htmlFor="consent">
-                I agree to receive updates and accept the
+                I accept the
               </label>{" "}
               <a href="/privacy">privacy policy</a>.
             </span>
