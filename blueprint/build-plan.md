@@ -28,7 +28,7 @@ already looks right.
 - [x] 7. **Responsive and accessibility pass** - narrow-screen behaviour, name row
   stacking, focus rings, labels and aria wiring, reduced motion, and a real
   small-screen check.
-- [ ] 8. **Deployment readiness** - Vercel config, London region, env vars,
+- [x] 8. **Deployment readiness** - Vercel config, London region, env vars,
   production build, and a smoke-test path.
 
 ## Post-MVP (not scheduled)

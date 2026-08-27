@@ -233,7 +233,27 @@ above.
 - **Database / storage:** none (Google Sheet, external)
 - **Workers or cron:** none
 - **Health check:** the root route
-- **Domain:** > TODO
+- **Domain:** www.thepostpartumsuite.com
+- **Region config lives in `vercel.json`**, not the dashboard. Hobby allows a
+  single function region; more than one fails before the build step
+
+**Smoke test after a production deploy.** Reflects the sheet as it is now:
+eleven columns, `DD-MM-YYYY HH:mm` timestamps, and a `signup_id`.
+
+1. Load `/` in a real browser with the console open. No CSP violations.
+2. Exercise the due-date picker and the parity radios.
+3. Submit one signup with obviously-test details.
+4. Confirm a row appends with eleven columns: readable datetimes in A and I, the
+   outward code in J under its `location` header, and a uuid in K.
+5. Delete the test row.
+6. Load `/privacy` and confirm it renders.
+7. Confirm `x-vercel-id` on a POST to `/` carries an `lhr1` prefix. Only the
+   function is regional; a GET is served from the CDN and proves nothing.
+
+**An automated check against `/` returns HTTP 429**, with
+`X-Vercel-Mitigated: challenge` and a Vercel Security Checkpoint page. That is
+Bot Protection challenging non-browser clients, not an outage. Any uptime
+monitor pointed here will report the site down while it is healthy.
 
 Preview deployment per feature branch. Production deploy stays explicit;
 `/release vercel` prepares config but never deploys on its own.

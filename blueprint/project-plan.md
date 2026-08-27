@@ -191,7 +191,25 @@ material and a roughened seam. Restrained, tactile, unhurried.
 - **Database:** none
 - **Workers or cron:** none
 - **Health check:** the root route
-- **Domain:** TODO
+- **Domain:** www.thepostpartumsuite.com
+
+**Smoke test after a production deploy.** Reflects the sheet as it is now:
+eleven columns, `DD-MM-YYYY HH:mm` timestamps, and a `signup_id`.
+
+1. Load `/` in a real browser with the console open. No CSP violations.
+2. Exercise the due-date picker and the parity radios.
+3. Submit one signup with obviously-test details.
+4. Confirm a row appends with eleven columns: readable datetimes in A and I, the
+   outward code in J under its `location` header, and a uuid in K.
+5. Delete the test row.
+6. Load `/privacy` and confirm it renders.
+7. Confirm `x-vercel-id` on a POST to `/` carries an `lhr1` prefix. Only the
+   function is regional; a GET is served from the CDN and proves nothing.
+
+**An automated check against `/` returns HTTP 429**, with
+`X-Vercel-Mitigated: challenge` and a Vercel Security Checkpoint page. That is
+Bot Protection challenging non-browser clients, not an outage. Any uptime
+monitor pointed here will report the site down while it is healthy.
 
 Preview deployments per feature branch. Production deploy stays a separate,
 explicit step; `/release vercel` prepares config but never deploys on its own.
@@ -214,7 +232,6 @@ explicit step; `/release vercel` prepares config but never deploys on its own.
 
 - Privacy policy wording, which needs a human author, not generated text
 - What "your area" means operationally, since the headline copy promises it
-- Domain name
 
 **Decided, kept here because later work depends on the reasoning:**
 
