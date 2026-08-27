@@ -7,14 +7,19 @@ const SHEETS_EPOCH_UTC = Date.UTC(1899, 11, 30);
 const MS_PER_DAY = 86_400_000;
 
 // What the team reads in the cell. Sheets' own pattern language, not a JS one.
-export const DATE_TIME_PATTERN = "dd-mm-yyyy hh:mm";
+const FORMATS = {
+  datetime: { type: "DATE_TIME", pattern: "dd-mm-yyyy hh:mm" },
+  date: { type: "DATE", pattern: "dd-mm-yyyy" },
+  time: { type: "TIME", pattern: "hh:mm" },
+} as const;
 
-// Marks the two cells that must reach the sheet as real datetimes rather than
-// text, so the row stays positional without toCellData having to know which
-// column indexes are dates.
+// Marks a cell that must reach the sheet as a real date, time or datetime
+// rather than text. The value carries its own number format so toCellData never
+// has to know which column indexes hold what.
 export interface SheetDateTime {
   readonly kind: "datetime";
   readonly serial: number;
+  readonly format: { readonly type: string; readonly pattern: string };
 }
 
 export function isSheetDateTime(value: unknown): value is SheetDateTime {
@@ -29,7 +34,12 @@ export function isSheetDateTime(value: unknown): value is SheetDateTime {
 //
 // hourCycle h23 matters: en-GB with hour12 false reports midnight as hour 24,
 // which would push the serial a full day forward.
-export function toSheetDateTime(at: Date): SheetDateTime {
+//
+// One reading of the London wall clock, shared by all three builders. Deriving
+// the date and the time from separate readings would let a signup at 23:58 take
+// its date, tick past midnight, and take its time from the next day, leaving
+// two columns permanently disagreeing about when it happened.
+function londonSerial(at: Date): number {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     year: "numeric",
@@ -55,5 +65,28 @@ export function toSheetDateTime(at: Date): SheetDateTime {
     at_("second"),
   );
 
-  return { kind: "datetime", serial: (wallClock - SHEETS_EPOCH_UTC) / MS_PER_DAY };
+  return (wallClock - SHEETS_EPOCH_UTC) / MS_PER_DAY;
+}
+
+export function toSheetDateTime(at: Date): SheetDateTime {
+  return { kind: "datetime", serial: londonSerial(at), format: FORMATS.datetime };
+}
+
+// A Sheets date is the whole part of the serial and a time is the fraction, so
+// both come off the same number rather than being formatted independently.
+export function toSheetDate(at: Date): SheetDateTime {
+  return {
+    kind: "datetime",
+    serial: Math.floor(londonSerial(at)),
+    format: FORMATS.date,
+  };
+}
+
+export function toSheetTime(at: Date): SheetDateTime {
+  const serial = londonSerial(at);
+  return {
+    kind: "datetime",
+    serial: serial - Math.floor(serial),
+    format: FORMATS.time,
+  };
 }

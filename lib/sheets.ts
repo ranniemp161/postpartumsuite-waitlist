@@ -5,9 +5,10 @@ import { createHash, randomUUID } from "node:crypto";
 import { JWT } from "google-auth-library";
 
 import {
-  DATE_TIME_PATTERN,
   isSheetDateTime,
+  toSheetDate,
   toSheetDateTime,
+  toSheetTime,
   type SheetDateTime,
 } from "@/lib/sheet-datetime";
 import type { WaitlistSignupInput } from "@/lib/waitlist-schema";
@@ -22,7 +23,7 @@ const API_ROOT = "https://sheets.googleapis.com/v4/spreadsheets";
 // submit open indefinitely.
 const REQUEST_TIMEOUT_MS = 10_000;
 
-// The eleven cells of one signup, in the order the sheet's columns are fixed in.
+// The thirteen cells of one signup, in the order the sheet's columns are fixed in.
 // Positional, so a reordered sheet corrupts every later row: see the Data
 // contract in project-overview.md before touching this.
 //
@@ -34,6 +35,10 @@ const REQUEST_TIMEOUT_MS = 10_000;
 // A random uuid rather than a time-sortable id: created_at already orders the
 // sheet, so sortability would buy nothing and cost a hand-rolled encoder. Its
 // job is to survive a row moving, which row position cannot.
+//
+// created_date and created_time hold the same instant as created_at, split for
+// reading. The duplication is deliberate: A stays the one column that sorts
+// correctly, so removing it to "deduplicate" would take the ordering with it.
 export type SheetRow = [
   created_at: SheetDateTime,
   first_name: string,
@@ -46,6 +51,8 @@ export type SheetRow = [
   consent_at: SheetDateTime,
   postcode_outward: string,
   signup_id: string,
+  created_date: SheetDateTime,
+  created_time: SheetDateTime,
 ];
 
 export class SheetsConfigError extends Error {
@@ -73,6 +80,8 @@ export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
     at,
     input.postcode_outward,
     randomUUID(),
+    toSheetDate(now),
+    toSheetTime(now),
   ];
 }
 
@@ -110,9 +119,7 @@ function toCellData(value: CellValue) {
   if (isSheetDateTime(value)) {
     return {
       userEnteredValue: { numberValue: value.serial },
-      userEnteredFormat: {
-        numberFormat: { type: "DATE_TIME", pattern: DATE_TIME_PATTERN },
-      },
+      userEnteredFormat: { numberFormat: value.format },
     };
   }
   if (typeof value === "number") return { userEnteredValue: { numberValue: value } };

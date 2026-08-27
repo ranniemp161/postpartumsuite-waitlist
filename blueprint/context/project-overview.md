@@ -75,6 +75,9 @@ the schema** and later features depend on it.
   `SW7`. Column J, whose header cell in the sheet reads `location`
 - `signup_id` (string, required) - server-generated uuid, the only stable
   identity a row has. Column K
+- `created_date` (Sheets date) - the date half of `created_at`, displayed
+  `DD-MM-YYYY`. Column L
+- `created_time` (Sheets time) - the time half, displayed `HH:mm`. Column M
 
 > **Locked shapes.** `due_month` is `YYYY-MM`, never a full date. `parity` is an
 > integer 1 to 3, never a label string. `phone` is always E.164.
@@ -97,6 +100,13 @@ the schema** and later features depend on it.
 > Deliberate: the code is positional so the header is only ever read by the
 > team, and `location` is the wording the client used. Do not "correct" it to
 > match the field name.
+
+> **Columns A, L and M carry the same instant on purpose.** `created_at` (A) is
+> the full datetime and the only column that sorts chronologically;
+> `created_date` (L) and `created_time` (M) exist so each half can be read and
+> filtered on its own. Removing A to "deduplicate" would take the ordering with
+> it. All three are derived from one wall-clock reading, so a signup near
+> midnight cannot land with L and M disagreeing about the day.
 
 > **Retention** is the recorded due month plus eighteen months, or sooner on
 > request, stated on `/privacy`. The sweep is manual; nothing deletes on a

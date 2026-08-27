@@ -65,6 +65,8 @@ is no per-user authorisation model to design.
 | `created_at` | timestamp | server-generated, written as a real Sheets datetime displayed `DD-MM-YYYY HH:mm` against a UK clock |
 | `postcode_outward` | string | required, outward code only, for example `SW7`. Column J, headed `location` in the sheet |
 | `signup_id` | string | server-generated uuid, the only stable identity a row has. Column K |
+| `created_date` | date | the date half of `created_at`, `DD-MM-YYYY`. Column L |
+| `created_time` | time | the time half of `created_at`, `HH:mm`. Column M |
 
 **Storage: a Google Sheet, explicitly temporary.** Rows are appended through the
 Sheets API using a service account. This is a deliberate trade: it gets a working
