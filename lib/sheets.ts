@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 import { JWT } from "google-auth-library";
 
 import type { WaitlistSignupInput } from "@/lib/waitlist-schema";
@@ -218,6 +220,14 @@ async function appendRow(
   }
 }
 
+// A handle for matching a lost signup to a visitor who writes in, without the
+// log becoming a second copy of the record. Truncated because it only ever has
+// to be unique against the handful of rows one outage loses, and a full digest
+// of a low-entropy value like an email is closer to the address itself.
+function emailHandle(email: string): string {
+  return createHash("sha256").update(email).digest("hex").slice(0, 8);
+}
+
 export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
   const row = toSheetRow(input, new Date());
 
@@ -225,13 +235,22 @@ export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
     await appendRow(readConfig(), row, AbortSignal.timeout(REQUEST_TIMEOUT_MS));
   } catch (error) {
     // The last line of defence. There is no database and no retry queue, so if
-    // this line is not written the signup is gone. Server logs only: the row
-    // carries personal data and, in due_month plus parity, health data.
+    // this line is not written the signup is gone.
+    //
+    // Deliberately not the row. Name, email, phone and parity stay out of the
+    // log store, because due_month plus parity is pregnancy information and so
+    // special category data under UK GDPR Article 9, and the log store has its
+    // own retention and its own reader list. What is left is pseudonymous and
+    // is the minimum an operator needs: how many signups an outage lost, which
+    // areas they came from, and enough of a handle to answer a visitor who
+    // asks whether hers arrived.
     console.error(
       "WAITLIST_SIGNUP_UNSAVED",
       JSON.stringify({
         reason: error instanceof Error ? error.message : String(error),
-        row,
+        email_handle: emailHandle(input.email),
+        due_month: input.due_month,
+        postcode_outward: input.postcode_outward,
       }),
     );
     throw error;

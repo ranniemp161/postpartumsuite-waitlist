@@ -18,3 +18,10 @@ export const UK_DIAL_CODE = "+44";
 // The recorded value, narrowed. Feature 4's schema and feature 5's sheet writer
 // both depend on this staying 1 to 3.
 export type Parity = (typeof PARITY_OPTIONS)[number]["value"];
+
+// A decoy input, hidden from anyone using the page and absent from
+// WAITLIST_FIELDS, so parseWaitlistForm keeps ignoring it. A form-stuffing bot
+// fills every input it finds; a visitor cannot reach this one. Named for what a
+// bot's field matching looks for rather than anything a browser will autofill,
+// because an autofilled decoy silently discards a real signup.
+export const HONEYPOT_FIELD = "website";

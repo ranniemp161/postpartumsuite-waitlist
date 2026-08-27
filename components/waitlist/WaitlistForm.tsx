@@ -18,6 +18,7 @@ import {
   invalidProps,
 } from "@/components/waitlist/FieldError";
 import {
+  HONEYPOT_FIELD,
   UK_DIAL_CODE,
   PARITY_OPTIONS,
 } from "@/lib/waitlist-options";
@@ -104,6 +105,21 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
         onChange={onFieldEdit}
         onBlur={onFieldEdit}
       >
+        {/* Off-screen rather than sr-only: sr-only keeps a control in the
+            accessibility tree, and a screen reader announcing a stray "website"
+            field is exactly the harm this is meant to avoid. aria-hidden and
+            tabIndex -1 keep it off both the reading order and the tab order,
+            and autoComplete="off" is what stops a browser filling it and
+            discarding a real signup. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <input
+            type="text"
+            name={HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         {/* The mockup shows one NAME field; splitting it is an approved deviation
             so the confirmation panel can echo a first name. One column under
             640px, because two 122px wells would each hold about eight
