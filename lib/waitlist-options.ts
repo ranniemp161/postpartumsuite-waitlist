@@ -5,9 +5,9 @@
 // sheet. 3 is the open end of the scale, "third or more", so a fourth or later
 // baby is also recorded as 3.
 export const PARITY_OPTIONS = [
-  { value: 1, label: "First" },
-  { value: 2, label: "Second" },
-  { value: 3, label: "Third or more" },
+  { value: 1, label: "First baby" },
+  { value: 2, label: "Second baby" },
+  { value: 3, label: "Third baby or more" },
 ] as const;
 
 // One country. The form renders this as a fixed prefix rather than a menu,

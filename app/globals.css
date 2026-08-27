@@ -171,7 +171,7 @@
 @layer components {
   /* Section 03's rhythm and section 05's well are written in the spec as bare
      element selectors (form, label, input). Applied literally they would also
-     hit the consent checkbox and the pill and consent labels, so every one of
+     hit the consent checkbox and the parity and consent labels, so every one of
      them is scoped to a class here. */
   .form-stack {
     display: flex;
@@ -332,41 +332,42 @@
 
   /* The legend is not a flex child of .field, so the label rhythm is a margin
      here rather than a gap. */
-  .parity-row {
+  .parity-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 10px;
     margin-top: 11px;
   }
 
-  /* Not in the mockup, which crops at the button, so this is the flat design's
-     own language applied to the control: a field border when resting, the
-     button's navy when chosen. */
-  .pill {
-    border: 1px solid var(--color-line);
-    border-radius: 4px;
-    padding: 8px 16px;
+  /* The row is the label, so the text and the whitespace beside it are part of
+     the same hit target. align-items keeps the dot on the first line if a label
+     ever wraps on a narrow phone. */
+  .parity-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-family: var(--font-body);
     font-size: 17px;
     color: var(--color-ink);
-    background: var(--color-sheet);
     cursor: pointer;
+    /* No double-tap-to-zoom wait before the tap registers. */
+    touch-action: manipulation;
   }
 
-  .pill:hover {
-    border-color: #a8a8a8;
+  /* The browser's own radio, sized and recoloured like the consent checkbox, so
+     the control looks native everywhere instead of relying on a restyled circle
+     that iOS Safari renders on its own terms. The margin reset matters: browsers
+     ship a radio with 3px/4px margins that knock it out of line with the copy. */
+  .parity-option input[type="radio"] {
+    flex: none;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    accent-color: var(--color-navy);
   }
 
-  .parity-row input:checked + .pill {
-    border-color: var(--color-navy);
-    background: var(--color-navy);
-    color: var(--color-label-white);
-  }
-
-  /* The radio itself is sr-only, so without these the arrow keys move a focus
-     nobody can see. */
-  .parity-row input:focus-visible + .pill {
-    border-color: var(--color-navy);
+  .parity-option input[type="radio"]:focus-visible {
+    outline: none;
     box-shadow: var(--ring);
   }
 }
@@ -565,8 +566,8 @@
     cursor: default;
   }
 
-  /* The same navy fill the parity pills take when chosen, so "selected" means
-     one thing across the whole form. */
+  /* The same navy the parity radios take when chosen, so "selected" means one
+     thing across the whole form. */
   .cal-month[aria-pressed="true"] {
     background: var(--color-navy);
     color: var(--color-label-white);

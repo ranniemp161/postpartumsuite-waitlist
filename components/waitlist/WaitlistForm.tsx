@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Fragment,
   startTransition,
   useActionState,
   useRef,
@@ -245,30 +244,29 @@ export function WaitlistForm({ intro }: { intro?: ReactNode }) {
           onPick={(dueMonth) => revalidate("due_month", dueMonth)}
         />
 
-        {/* Native radios, so arrow-key roving and the one-Tab-stop behaviour come
-            from the browser rather than from state. The selected look is the
-            :checked sibling; nothing here is interactive JavaScript. */}
+        {/* Native radios, visible rather than restyled: arrow-key roving, the
+            one-Tab-stop behaviour, and the checked dot all come from the
+            browser. Each input sits inside its label, so the whole row is one
+            hit target on iOS Safari, where a label pointing at a visually
+            hidden input is the pattern that misses taps. */}
         <fieldset
           className="parity-set"
           {...describedByProps("parity", errors)}
         >
           <legend className="field-label">Which baby are you expecting?</legend>
 
-          <div className="parity-row">
+          <div className="parity-list">
             {PARITY_OPTIONS.map(({ value, label }) => (
-              <Fragment key={value}>
+              <label className="parity-option" key={value}>
                 <input
-                  className="sr-only"
                   type="radio"
                   id={`parity_${value}`}
                   name="parity"
                   value={value}
                   {...invalidProps("parity", errors)}
                 />
-                <label className="pill" htmlFor={`parity_${value}`}>
-                  {label}
-                </label>
-              </Fragment>
+                <span>{label}</span>
+              </label>
             ))}
           </div>
 
