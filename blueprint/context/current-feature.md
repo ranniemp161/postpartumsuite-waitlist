@@ -77,7 +77,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   signup creates a lead in Zoho sandbox and a row in the test tab with the same
   `signup_id`; with it set to a bad URL the visitor still sees the thank-you panel
   and the log shows the unsynced line.
-- [ ] **Step 5 - Privacy page and docs** - update `app/privacy/page.tsx` so "Where
+- [x] **Step 5 - Privacy page and docs** - update `app/privacy/page.tsx` so "Where
   it is kept" names Zoho CRM as well as the Sheet, and the deletion paragraph says
   both are cleared. Add the two optional vars to `.env.example` with a note that
   `ZOHO_WAITLIST_URL` contains a key. *Done when:* `/privacy` renders with the new
