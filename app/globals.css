@@ -91,14 +91,27 @@
      on its own: at any size worth reading it needs more room than the column
      has, and the rag is the price of it filling the width. */
   .intro-copy {
-    margin: 0 auto clamp(22px, 3.4vw, 29px);
-    font-size: clamp(17px, 2.2vw, 19px);
-    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(5px, 1.2vw, 9px);
+    margin: 0 auto clamp(14px, 2.4vw, 22px);
+    font-size: clamp(14px, 1.9vw, 16.5px);
+    line-height: 1.36;
     text-align: center;
   }
 
-  .intro-copy strong {
+  .intro-copy p {
+    margin: 0;
+  }
+
+  .intro-lead,
+  .intro-cta,
+  .confirm-strong {
     font-weight: 600;
+  }
+
+  .intro-lead {
+    font-size: 1.1em;
   }
 
   /* The mark and the wordmark are one piece of artwork now, so the h1 stops
@@ -114,7 +127,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 9px;
     margin: 0 auto;
     line-height: 0;
   }
@@ -123,7 +136,7 @@
      width puts the circle at about 93px, where 280px of the old lockup put it
      at 186px. Small enough to sit with the wordmark rather than shout over it. */
   .site-mark {
-    width: clamp(71px, 18vw, 100px);
+    width: clamp(46px, 11.7vw, 65px);
     height: auto;
   }
 
@@ -132,7 +145,7 @@
      of the system: at this width its cap height lands near 20px, which is what
      keeps the title above the tagline instead of under it. */
   .site-wordmark {
-    width: clamp(200px, 50vw, 280px);
+    width: clamp(130px, 32.5vw, 182px);
     height: auto;
   }
 
@@ -146,7 +159,7 @@
     /* Sets the whole gap between the tagline and the intro copy, since neither
        of those carries a margin on the facing side. Equal top and bottom keeps
        the rule centred in the space it makes. */
-    margin: 15px auto;
+    margin: 10px auto;
     background: var(--color-rule);
   }
 
@@ -154,7 +167,7 @@
      measure has to sit under that, and text-wrap:balance then splits it evenly
      after "Needs" rather than leaving a short second line. */
   .tagline {
-    margin: 13px auto 0;
+    margin: 8px auto 0;
     max-width: 26ch;
     font-family: var(--font-display);
     font-optical-sizing: none;

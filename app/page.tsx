@@ -42,12 +42,23 @@ export default function Home() {
               <>
                 <hr className="hairline" />
 
-                <p className="intro-copy">
-                  <strong>Join the waiting list.</strong>
-                  <br />
-                  Places are limited and offered in the order the waiting list
-                  is received.
-                </p>
+                <div className="intro-copy">
+                  <p className="intro-lead">Care for your baby. And for you.</p>
+                  <p>
+                    The first weeks after birth should be a time when you feel
+                    supported, cared for and able to focus on what matters most.
+                  </p>
+                  <p>
+                    At The Postpartum Suite, our dedicated postpartum
+                    specialists provide personalised care in your home,
+                    tailored to you and your family. From newborn care and
+                    recovery support to nourishing meals and practical household
+                    help, we&apos;re here to make those early weeks feel less
+                    overwhelming.
+                  </p>
+                  <p className="intro-cta">Join our Waiting List</p>
+                  <p>Places are limited and offered in the order they are received.</p>
+                </div>
               </>
             }
           />
