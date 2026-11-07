@@ -13,7 +13,7 @@ import {
 } from "@/lib/sheet-datetime";
 import type { WaitlistSignupInput } from "@/lib/waitlist-schema";
 
-const SHEET_TAB = "Signups";
+const DEFAULT_SHEET_TAB = "Signups";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 const API_ROOT = "https://sheets.googleapis.com/v4/spreadsheets";
 
@@ -63,7 +63,11 @@ export class SheetsWriteError extends Error {
   name = "SheetsWriteError";
 }
 
-export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
+export function toSheetRow(
+  input: WaitlistSignupInput,
+  now: Date,
+  signupId: string,
+): SheetRow {
   // One timestamp for both columns: consent is given at submit, so there is no
   // earlier moment to record.
   const at = toSheetDateTime(now);
@@ -79,7 +83,7 @@ export function toSheetRow(input: WaitlistSignupInput, now: Date): SheetRow {
     input.consent,
     at,
     input.postcode_outward,
-    randomUUID(),
+    signupId,
     toSheetDate(now),
     toSheetTime(now),
   ];
@@ -108,6 +112,9 @@ function readConfig() {
     spreadsheetId: requireEnv("GOOGLE_SHEETS_SPREADSHEET_ID"),
     clientEmail: requireEnv("GOOGLE_SERVICE_ACCOUNT_EMAIL"),
     privateKey,
+    // Optional, so Preview and local can write to a test tab in the same
+    // spreadsheet. Production leaves it unset and keeps writing to Signups.
+    sheetTab: process.env.GOOGLE_SHEETS_TAB?.trim() || DEFAULT_SHEET_TAB,
   };
 }
 
@@ -157,16 +164,19 @@ function untilAborted(signal: AbortSignal): Promise<never> {
   });
 }
 
-// The tab's numeric id never changes for a given spreadsheet, and renaming the
-// tab does not alter it, so one lookup per process is enough.
+// The tab's numeric id never changes once it exists, and renaming the tab does
+// not alter it, so one lookup per process is enough. Keyed on the tab as well as
+// the spreadsheet, because two tabs of one spreadsheet have different ids.
 const sheetIdCache = new Map<string, number>();
 
 async function resolveSheetId(
   spreadsheetId: string,
+  sheetTab: string,
   token: string,
   signal: AbortSignal,
 ): Promise<number> {
-  const cached = sheetIdCache.get(spreadsheetId);
+  const cacheKey = `${spreadsheetId}/${sheetTab}`;
+  const cached = sheetIdCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
   const response = await fetch(
@@ -182,16 +192,16 @@ async function resolveSheetId(
 
   const body: { sheets?: SheetProperties[] } = await response.json();
   const sheetId = body.sheets?.find(
-    (sheet) => sheet.properties?.title === SHEET_TAB,
+    (sheet) => sheet.properties?.title === sheetTab,
   )?.properties?.sheetId;
 
   if (sheetId === undefined) {
     throw new SheetsConfigError(
-      `The spreadsheet has no tab named "${SHEET_TAB}"`,
+      `The spreadsheet has no tab named "${sheetTab}"`,
     );
   }
 
-  sheetIdCache.set(spreadsheetId, sheetId);
+  sheetIdCache.set(cacheKey, sheetId);
   return sheetId;
 }
 
@@ -214,7 +224,12 @@ async function appendRow(
     throw new SheetsWriteError("Google returned no access token");
   }
 
-  const sheetId = await resolveSheetId(config.spreadsheetId, token, signal);
+  const sheetId = await resolveSheetId(
+    config.spreadsheetId,
+    config.sheetTab,
+    token,
+    signal,
+  );
 
   // appendCells, not values.append: the latter finds the end of the table by
   // scanning for occupied cells and counts formatting as occupancy, so the
@@ -258,8 +273,18 @@ function emailHandle(email: string): string {
   return createHash("sha256").update(email).digest("hex").slice(0, 8);
 }
 
-export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
-  const row = toSheetRow(input, new Date());
+export interface SavedSignup {
+  signup_id: string;
+  created_at: Date;
+}
+
+// Returns the identity it stamped, so anything else the signup is sent to
+// carries the same id and instant as the sheet row.
+export async function saveSignup(
+  input: WaitlistSignupInput,
+): Promise<SavedSignup> {
+  const saved: SavedSignup = { signup_id: randomUUID(), created_at: new Date() };
+  const row = toSheetRow(input, saved.created_at, saved.signup_id);
 
   try {
     await appendRow(readConfig(), row, AbortSignal.timeout(REQUEST_TIMEOUT_MS));
@@ -278,7 +303,7 @@ export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
       "WAITLIST_SIGNUP_UNSAVED",
       JSON.stringify({
         reason: error instanceof Error ? error.message : String(error),
-        signup_id: row[10],
+        signup_id: saved.signup_id,
         email_handle: emailHandle(input.email),
         due_month: input.due_month,
         postcode_outward: input.postcode_outward,
@@ -286,4 +311,6 @@ export async function saveSignup(input: WaitlistSignupInput): Promise<void> {
     );
     throw error;
   }
+
+  return saved;
 }

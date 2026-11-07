@@ -84,7 +84,11 @@ export default function PrivacyPolicy() {
           <h2>Where it is kept</h2>
           <p>
             Your details are written to a private Google Sheet that only our
-            team can open. Nobody outside the team is given access to it.
+            team can open, and a copy is sent to Zoho CRM, the system our team
+            uses to contact people on the waitlist. Zoho acts as a processor,
+            which means it holds your details on our behalf and does not use
+            them for its own purposes. Nobody outside the team and these two
+            services is given access.
           </p>
 
           <h2>How long we keep it</h2>
@@ -97,7 +101,7 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             If you ask us to delete your details before then, we delete your
-            row when you ask.
+            row from the sheet and your record from Zoho when you ask.
           </p>
 
           <h2>Your rights</h2>

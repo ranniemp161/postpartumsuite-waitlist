@@ -43,6 +43,12 @@ requirement everything else is judged against, so the look lands before behaviou
 7. **Responsive and accessibility pass** - narrow screens, focus rings, aria
    wiring, reduced motion.
 8. **Deployment readiness** - Vercel config, London region, env vars, smoke test.
+9. **Zoho CRM sync** - after each Sheet save, POST the same signup as JSON to a
+   Zoho function URL held in an env var, from the Server Action. A Zoho failure is
+   logged without personal data and never blocks the thank-you page. Adds an
+   optional `GOOGLE_SHEETS_TAB` so Preview and local can write to a test tab,
+   updates `/privacy` to name Zoho, and is tested against the Zoho sandbox before
+   the live URL is set.
 
 Logged separately under `blueprint/history/fixes/`, not build-plan items:
 
@@ -131,6 +137,19 @@ Article 5(1)(c) asks for.
 All persistence sits behind a single typed `saveSignup(input)` module so the
 sheet can be replaced without touching the form, validation, or confirmation.
 
+> **Zoho CRM copy (feature 9).** Each signup is also POSTed to Zoho after the
+> Sheet save succeeds. The Sheet stays the source of truth; Zoho is the team's
+> follow-up tool. The JSON payload uses the sheet's names, with two renames:
+> `baby_status` is `parity` (1 to 3) and `location` is `postcode_outward`. Keys
+> sent: `first_name`, `last_name`, `email`, `phone`, `due_month` (`YYYY-MM`),
+> `baby_status`, `consent` (boolean), `consent_at` (ISO 8601 with a UK offset, to be
+> confirmed with the client), `location`, `signup_id`. `signup_id` is generated
+> once and shared, so a Sheet row and a Zoho lead can be matched. Zoho matches on
+> email, so a retry does not create a second lead. A Zoho failure is logged with
+> the `signup_id` and no personal data, and the visitor still sees the thank-you
+> panel. Zoho is a second processor of special category data: `/privacy` names it
+> and a deletion request covers both the row and the lead.
+
 ## Tech stack
 
 - **Next.js 16 (App Router)** - the app; server components by default
@@ -141,6 +160,10 @@ sheet can be replaced without touching the form, validation, or confirmation.
 - **Zod** - one schema shared by client and server validation
 - **google-auth-library + Sheets REST** - service-account row append, chosen over
   full `googleapis` for a single call
+- **Zoho CRM** - plain server-side `fetch` POST of JSON, no SDK. The function URL
+  embeds its key, so it lives in `ZOHO_WAITLIST_URL`, is never logged, and never
+  reaches the browser. Called from the existing Server Action, so still no API
+  route
 - **next/font/google** - self-hosts Bodoni Moda, EB Garamond, and IBM Plex Sans
   400 (the button label, the only sans on the page)
 - **npm** - package manager
@@ -239,8 +262,11 @@ above.
 - **Build:** `npm run build`
 - **Start:** handled by Vercel
 - **Env vars:** `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`,
-  `GOOGLE_PRIVATE_KEY`
-- **Database / storage:** none (Google Sheet, external)
+  `GOOGLE_PRIVATE_KEY`. Optional: `GOOGLE_SHEETS_TAB` (defaults to `Signups`) and
+  `ZOHO_WAITLIST_URL` (the Zoho step is skipped when unset). Both are set on
+  Preview and local only, pointing at a test tab and the Zoho sandbox URL, until
+  the client confirms the test lead and the live URL goes on Production
+- **Database / storage:** none (Google Sheet, external; Zoho CRM holds a copy)
 - **Workers or cron:** none
 - **Health check:** the root route
 - **Domain:** www.thepostpartumsuite.com
@@ -289,5 +315,12 @@ Gaps and mismatches carried from the plans. Resolve in the plans, then re-run
 - **Retention is stated but not enforced.** `/privacy` promises deletion at due
   month plus eighteen months, and nothing deletes on a schedule. Either someone
   runs the sweep or the page makes a promise the system does not keep.
+- **Zoho response shapes are unknown.** The client has not said what the function
+  returns on success or failure. Until they do, anything other than a 2xx with a
+  body that clearly reports success is treated as a failure.
+- **`consent_at` format for Zoho** is unconfirmed. ISO 8601 with a UK offset is the
+  working assumption.
+- **Two stores now hold the data.** Retention and deletion on `/privacy` must cover
+  the Zoho lead as well as the Sheet row, and both sweeps are manual.
 - **Migration off Sheets** is triggered by need, not row count: the first time a
   signup needs per-signup state (contacted, offered, declined).

@@ -31,6 +31,15 @@ already looks right.
 - [x] 8. **Deployment readiness** - Vercel config, London region, env vars,
   production build, and a smoke-test path.
 
+## Post-launch
+
+- [ ] 9. **Zoho CRM sync** - after each Sheet save, POST the same signup as JSON
+  to a Zoho function URL held in an env var, from the Server Action. A Zoho
+  failure is logged without personal data and never blocks the thank-you page.
+  Adds an optional `GOOGLE_SHEETS_TAB` setting so Preview and local can write to
+  a test tab, updates `/privacy` to name Zoho, and is tested against the Zoho
+  sandbox before the live URL is set.
+
 ## Post-MVP (not scheduled)
 
 Recorded so they are not forgotten, deliberately unscheduled while this stays a

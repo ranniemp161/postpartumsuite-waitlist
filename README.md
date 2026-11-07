@@ -56,3 +56,21 @@ up from scratch:
 
 The column order is the schema: `lib/sheets.ts` writes positionally, so reordering
 or inserting a column in the sheet silently corrupts every later signup.
+
+## Zoho CRM and the test tab
+
+After each Sheet save, the signup is also POSTed as JSON to a Zoho CRM function.
+The Sheet stays the source of truth: a Zoho failure is logged as
+`WAITLIST_SIGNUP_UNSYNCED` (with the `signup_id` only) and the visitor still sees
+the thank-you panel.
+
+Both settings are optional and live in `.env.local` or the Vercel dashboard:
+
+- `GOOGLE_SHEETS_TAB` - the tab to write to, default `Signups`
+- `ZOHO_WAITLIST_URL` - the function URL, which includes its API key. Unset means
+  no Zoho call
+
+To trial it safely, duplicate the `Signups` tab as `Signups-Test`, then set
+`GOOGLE_SHEETS_TAB=Signups-Test` and `ZOHO_WAITLIST_URL` to the Zoho sandbox URL
+on **Preview and local only**. Leave both unset on Production until the client
+confirms the sandbox lead looks right, then add the live URL there.

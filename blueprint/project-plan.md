@@ -76,6 +76,15 @@ All persistence sits behind a single typed function, `saveSignup(input)`, in one
 module. Swapping the sheet for a database later must not touch the form, the
 validation, or the confirmation flow.
 
+**Zoho CRM copy.** Each signup is also sent to Zoho CRM, so the team can follow
+up inside the CRM. The Sheet stays the source of truth: the Zoho call happens
+after a successful Sheet save, and a Zoho failure is logged and never shown to the
+visitor. Zoho matches on email, so a retry does not create a second lead. The
+payload uses the sheet's names (`baby_status` is `parity`, `location` is
+`postcode_outward`). Zoho is a second processor of special category data, so
+`/privacy` names it, and a deletion request now covers the Sheet row and the Zoho
+lead.
+
 **Sensitivity.** A due month combined with birth parity is pregnancy information,
 which is health data and therefore special category data under UK GDPR Article 9.
 Consequences carried into the build:
@@ -102,6 +111,10 @@ Additions this project needs:
 - **Zod** for one schema shared by client and server validation
 - **google-auth-library** plus a direct Sheets REST append. Lighter than pulling
   in all of `googleapis` for a single call.
+- **Zoho CRM** over a plain server-side `fetch` POST of JSON, with no SDK. The
+  function URL embeds its key, so it lives in `ZOHO_WAITLIST_URL` and is never
+  logged or sent to the browser. Called from the existing Server Action, so still
+  no API route.
 - **next/font/google** self-hosting Bodoni Moda, EB Garamond, IM Fell English SC,
   and IBM Plex Sans 600 at the exact axes the spec pins
 
@@ -189,7 +202,10 @@ material and a roughened seam. Restrained, tactile, unhurried.
 - **Build:** `npm run build`
 - **Start:** handled by Vercel
 - **Env vars:** `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`,
-  `GOOGLE_PRIVATE_KEY`
+  `GOOGLE_PRIVATE_KEY`. Optional: `GOOGLE_SHEETS_TAB` (defaults to `Signups`) and
+  `ZOHO_WAITLIST_URL` (the Zoho step is skipped when unset). Both are set on
+  Preview and local only, pointing at a test tab and the Zoho sandbox URL, until
+  Zoho confirms the test lead and the live URL is added to Production
 - **Database:** none
 - **Workers or cron:** none
 - **Health check:** the root route
