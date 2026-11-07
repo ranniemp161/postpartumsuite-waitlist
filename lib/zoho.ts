@@ -83,12 +83,18 @@ function reportsSuccess(body: unknown): boolean {
 
 // Fixed strings only. A fetch error message can embed the request URL, and
 // this URL carries the API key, so nothing from the error itself is logged.
-async function attempt(url: string, payload: ZohoPayload): Promise<string | null> {
+async function attempt(
+  url: string,
+  input: WaitlistSignupInput,
+  saved: SavedSignup,
+): Promise<string | null> {
   try {
+    // Built inside the try, so a failure while shaping the payload is
+    // swallowed like any other and cannot escape to the action.
     const response = await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(toZohoPayload(input, saved)),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
@@ -114,7 +120,7 @@ export async function syncToZoho(
   const url = process.env.ZOHO_WAITLIST_URL?.trim();
   if (!url) return;
 
-  const reason = await attempt(url, toZohoPayload(input, saved));
+  const reason = await attempt(url, input, saved);
   if (reason === null) return;
 
   // The signup_id is enough to find the Sheet row and replay it by hand. No

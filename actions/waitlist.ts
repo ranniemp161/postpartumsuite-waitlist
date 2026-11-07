@@ -1,6 +1,7 @@
 "use server";
 
 import { saveSignup } from "@/lib/sheets";
+import { syncToZoho } from "@/lib/zoho";
 import { HONEYPOT_FIELD } from "@/lib/waitlist-options";
 import { parseWaitlistForm, toFieldErrors } from "@/lib/waitlist-schema";
 import type { WaitlistFormState } from "@/types/waitlist";
@@ -34,7 +35,11 @@ export async function joinWaitlist(
       return { status: "success", firstName: signup.first_name };
     }
 
-    await saveSignup(signup);
+    const saved = await saveSignup(signup);
+
+    // Only reached once the sheet row exists, and it cannot throw, so a CRM
+    // problem never turns a saved signup into the failure message.
+    await syncToZoho(signup, saved);
 
     return { status: "success", firstName: signup.first_name };
   } catch (error) {

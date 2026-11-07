@@ -70,7 +70,7 @@ Never accept a step you haven't read. If a diff is too big to review, the step w
   (no email, name, phone, or URL). *Done when:* `npm run build` passes and a
   throwaway call against an unreachable URL logs one `WAITLIST_SIGNUP_UNSYNCED`
   line, contains no personal data or URL, and returns normally.
-- [ ] **Step 4 - Wire it into the action** - in `actions/waitlist.ts`, after
+- [x] **Step 4 - Wire it into the action** - in `actions/waitlist.ts`, after
   `saveSignup()` resolves, call `syncToZoho()` when `ZOHO_WAITLIST_URL` is set.
   The honeypot branch and the Sheet-failure branch must not reach it. *Done
   when:* with the var unset nothing changes; with it set to the sandbox URL a fake
